@@ -1,5 +1,6 @@
 export type MediaType = 'movie' | 'tv';
 export type SearchType = 'all' | MediaType;
+export type SearchSort = 'relevance' | 'rating' | 'newest';
 
 export interface TmdbGenre {
   id: number;
@@ -31,6 +32,7 @@ export interface TmdbProductionCompany {
 }
 
 export interface TmdbMediaResult {
+  adult?: boolean;
   id: number;
   media_type?: MediaType | 'person';
   title?: string;
@@ -168,9 +170,12 @@ export interface MediaItem {
 }
 
 export interface SearchRequest {
+  minRating: number;
   query: string;
+  sort: SearchSort;
   type: SearchType;
   page: number;
+  year: string;
 }
 
 export interface SearchPageResult {
@@ -199,7 +204,7 @@ export interface DetailsPageData {
 }
 
 export interface BrowseRequest {
-  genreId: number;
+  genreId?: number;
   page: number;
   type: MediaType;
 }

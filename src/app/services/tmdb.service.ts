@@ -34,7 +34,6 @@ export class TmdbService {
   readonly movieFallbackImage = 'assets/images/movie-not-found.png';
   readonly posterFallbackImage = 'assets/images/img-not-found.svg';
   readonly castFallbackImage = 'assets/images/man-placeholder.jpg';
-  readonly starIcon = 'assets/images/star.svg';
 
   async getHomeSections(abortSignal?: AbortSignal): Promise<HomeSections> {
     const [trending, movies, tvShows, movieGenres, tvGenres] = await Promise.all([
@@ -58,6 +57,28 @@ export class TmdbService {
     request: BrowseRequest,
     abortSignal?: AbortSignal,
   ): Promise<BrowsePageResult> {
+    if (!request.genreId) {
+      const endpoint = request.type === 'movie' ? '/movie/popular' : '/tv/popular';
+      const response = await this.request<TmdbPagedResponse<TmdbMediaResult>>(
+        endpoint,
+        {
+          include_adult: false,
+          page: request.page,
+        },
+        abortSignal,
+      );
+
+      return {
+        genreName: request.type === 'movie' ? 'Popular Movies' : 'Popular TV & Web Series',
+        items: response.results
+          .filter((result) => result.adult !== true)
+          .map((result) => this.toMediaItem(result, request.type))
+          .filter((item) => item !== null),
+        totalPages: Math.min(response.total_pages, 500),
+        totalResults: response.total_results,
+      };
+    }
+
     const [genres, response] = await Promise.all([
       this.getGenres(request.type, abortSignal),
       this.request<TmdbPagedResponse<TmdbMediaResult>>(
@@ -85,22 +106,43 @@ export class TmdbService {
 
   async search(request: SearchRequest, abortSignal?: AbortSignal): Promise<SearchPageResult> {
     const endpoint = request.type === 'all' ? '/search/multi' : `/search/${request.type}`;
+    const yearParam =
+      request.year && request.type === 'movie'
+        ? { primary_release_year: request.year }
+        : request.year && request.type === 'tv'
+          ? { first_air_date_year: request.year }
+          : {};
     const response = await this.request<TmdbPagedResponse<TmdbMediaResult>>(
       endpoint,
       {
         query: request.query,
         page: request.page,
         include_adult: false,
+        ...yearParam,
       },
       abortSignal,
     );
+    const items = response.results
+      .map((result) => this.toMediaItem(result, request.type))
+      .filter((item) => item !== null)
+      .filter((item) => !request.year || item.releaseDate.startsWith(request.year))
+      .filter((item) => item.rating >= request.minRating)
+      .sort((first, second) => {
+        if (request.sort === 'rating') {
+          return second.rating - first.rating;
+        }
+
+        if (request.sort === 'newest') {
+          return second.releaseDate.localeCompare(first.releaseDate);
+        }
+
+        return 0;
+      });
 
     return {
-      items: response.results
-        .map((result) => this.toMediaItem(result, request.type))
-        .filter((item) => item !== null),
+      items,
       totalPages: Math.min(response.total_pages, 500),
-      totalResults: response.total_results,
+      totalResults: request.year || request.minRating ? items.length : response.total_results,
     };
   }
 

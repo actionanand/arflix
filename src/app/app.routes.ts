@@ -14,6 +14,28 @@ export const routes: Routes = [
       import('./pages/search/search.component').then((component) => component.SearchComponent),
   },
   {
+    path: 'movies',
+    title: 'Popular Movies - ARFlix',
+    data: {
+      mediaType: 'movie',
+    },
+    loadComponent: () =>
+      import('./pages/category/category.component').then(
+        (component) => component.CategoryComponent,
+      ),
+  },
+  {
+    path: 'tv-shows',
+    title: 'Popular TV - ARFlix',
+    data: {
+      mediaType: 'tv',
+    },
+    loadComponent: () =>
+      import('./pages/category/category.component').then(
+        (component) => component.CategoryComponent,
+      ),
+  },
+  {
     path: 'category/:type/:genreId',
     title: 'Category - ARFlix',
     loadComponent: () =>

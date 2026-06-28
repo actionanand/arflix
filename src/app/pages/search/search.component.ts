@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
-import { SearchPageResult, SearchRequest, SearchType } from '../../models/tmdb';
+import { SearchPageResult, SearchRequest, SearchSort, SearchType } from '../../models/tmdb';
 import { TmdbService } from '../../services/tmdb.service';
 
 const emptySearchResult: SearchPageResult = {
@@ -43,7 +43,13 @@ const emptySearchResult: SearchPageResult = {
         @for (filter of filters; track filter.type) {
           <a
             routerLink="/search"
-            [queryParams]="{ q: query(), type: filter.type }"
+            [queryParams]="{
+              q: query(),
+              type: filter.type,
+              year: year() || null,
+              minRating: minRating() || null,
+              sort: sort(),
+            }"
             [class.is-active]="type() === filter.type"
             [attr.aria-current]="type() === filter.type ? 'page' : null"
           >
@@ -51,6 +57,41 @@ const emptySearchResult: SearchPageResult = {
           </a>
         }
       </nav>
+
+      <section class="filter-panel" aria-labelledby="filters-title">
+        <h2 id="filters-title">Filters</h2>
+        <div class="filter-grid">
+          <label>
+            Year
+            <select [value]="year()" (change)="updateFilter('year', selectValue($event))">
+              <option value="">Any year</option>
+              @for (yearOption of years; track yearOption) {
+                <option [value]="yearOption">{{ yearOption }}</option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Minimum rating
+            <select [value]="minRating()" (change)="updateFilter('minRating', selectValue($event))">
+              <option value="0">Any rating</option>
+              <option value="5">5+</option>
+              <option value="6">6+</option>
+              <option value="7">7+</option>
+              <option value="8">8+</option>
+            </select>
+          </label>
+
+          <label>
+            Sort
+            <select [value]="sort()" (change)="updateFilter('sort', selectValue($event))">
+              <option value="relevance">Relevance</option>
+              <option value="rating">Top rated</option>
+              <option value="newest">Newest</option>
+            </select>
+          </label>
+        </div>
+      </section>
     </section>
 
     @if (!query()) {
@@ -117,6 +158,7 @@ export class SearchComponent {
     { type: 'movie', label: 'Movies' },
     { type: 'tv', label: 'Web series & TV' },
   ];
+  protected readonly years = this.buildYears();
   protected readonly skeletonItems = [1, 2, 3, 4, 5, 6, 7, 8];
 
   private readonly route = inject(ActivatedRoute);
@@ -133,6 +175,11 @@ export class SearchComponent {
     this.toSearchType(this.queryParams().get('type')),
   );
   protected readonly page = computed(() => this.toPageNumber(this.queryParams().get('page')));
+  protected readonly year = computed(() => this.queryParams().get('year') ?? '');
+  protected readonly minRating = computed(() =>
+    this.toMinRating(this.queryParams().get('minRating')),
+  );
+  protected readonly sort = computed<SearchSort>(() => this.toSort(this.queryParams().get('sort')));
   protected readonly title = computed(() =>
     this.query() ? `Results for "${this.query()}"` : 'Find a title',
   );
@@ -144,8 +191,11 @@ export class SearchComponent {
       return query
         ? {
             query,
+            minRating: this.minRating(),
+            sort: this.sort(),
             type: this.type(),
             page: this.page(),
+            year: this.year(),
           }
         : undefined;
     },
@@ -197,6 +247,21 @@ export class SearchComponent {
     });
   }
 
+  protected updateFilter(key: 'year' | 'minRating' | 'sort', value: string): void {
+    void this.router.navigate([], {
+      queryParams: {
+        [key]: value || null,
+        page: 1,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  protected selectValue(event: Event): string {
+    const select = event.target as HTMLSelectElement | null;
+    return select?.value ?? '';
+  }
+
   private toSearchType(value: string | null): SearchType {
     return value === 'movie' || value === 'tv' ? value : 'all';
   }
@@ -204,5 +269,19 @@ export class SearchComponent {
   private toPageNumber(value: string | null): number {
     const page = Number(value);
     return Number.isInteger(page) && page > 0 ? page : 1;
+  }
+
+  private toMinRating(value: string | null): number {
+    const rating = Number(value);
+    return Number.isFinite(rating) && rating > 0 ? rating : 0;
+  }
+
+  private toSort(value: string | null): SearchSort {
+    return value === 'rating' || value === 'newest' ? value : 'relevance';
+  }
+
+  private buildYears(): string[] {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 45 }, (_, index) => String(currentYear - index));
   }
 }

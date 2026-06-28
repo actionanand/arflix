@@ -73,6 +73,9 @@ export class CategoryComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly tmdb = inject(TmdbService);
+  private readonly routeData = toSignal(this.route.data, {
+    initialValue: this.route.snapshot.data,
+  });
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -81,29 +84,26 @@ export class CategoryComponent {
   });
 
   protected readonly mediaType = computed<MediaType>(() =>
-    this.paramMap().get('type') === 'tv' ? 'tv' : 'movie',
+    this.paramMap().get('type') === 'tv' || this.routeData()['mediaType'] === 'tv' ? 'tv' : 'movie',
   );
   protected readonly mediaLabel = computed(() =>
     this.mediaType() === 'movie' ? 'Movie category' : 'Web series / TV category',
   );
-  protected readonly genreId = computed(() => Number(this.paramMap().get('genreId') ?? 0));
+  protected readonly genreId = computed(() => {
+    const value = this.paramMap().get('genreId');
+    return value ? Number(value) : undefined;
+  });
   protected readonly page = computed(() => {
     const page = Number(this.queryParamMap().get('page'));
     return Number.isInteger(page) && page > 0 ? page : 1;
   });
   protected readonly browseResource = resource<BrowsePageResult, BrowseRequest | undefined>({
     defaultValue: emptyBrowseResult,
-    params: () => {
-      const genreId = this.genreId();
-
-      return genreId > 0
-        ? {
-            genreId,
-            page: this.page(),
-            type: this.mediaType(),
-          }
-        : undefined;
-    },
+    params: () => ({
+      genreId: this.genreId(),
+      page: this.page(),
+      type: this.mediaType(),
+    }),
     loader: ({ params, abortSignal }) => this.tmdb.browseByCategory(params, abortSignal),
   });
 

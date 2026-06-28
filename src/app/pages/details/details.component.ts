@@ -151,77 +151,122 @@ interface DetailsRequest {
       </section>
 
       @if (detailsResource.value().cast.length) {
-        <section class="rail" aria-labelledby="cast-title">
+        <section class="rail cast-carousel" aria-labelledby="cast-title">
           <div class="section-heading">
             <h2 id="cast-title">Top cast</h2>
-            <div class="carousel-controls" aria-label="Cast carousel controls">
-              <button type="button" (click)="previousCast()" aria-label="Previous cast members">
-                Prev
-              </button>
-              <button type="button" (click)="nextCast()" aria-label="Next cast members">
-                Next
-              </button>
+          </div>
+          <div class="cast-carousel__body">
+            <button
+              class="carousel-arrow carousel-arrow--left"
+              type="button"
+              (click)="previousCast()"
+              aria-label="Previous cast members"
+            >
+              <span class="material-icons" aria-hidden="true">chevron_left</span>
+            </button>
+            <div class="cast-strip">
+              @for (person of visibleCast(); track person.id) {
+                <article class="cast-card">
+                  <img
+                    [src]="profileUrl(person.profile_path)"
+                    [alt]="person.name"
+                    loading="lazy"
+                    width="185"
+                    height="278"
+                  />
+                  <h3>{{ person.name }}</h3>
+                  @if (person.character) {
+                    <p>{{ person.character }}</p>
+                  }
+                </article>
+              }
             </div>
-          </div>
-          <div class="cast-strip">
-            @for (person of visibleCast(); track person.id) {
-              <article class="cast-card">
-                <img
-                  [src]="profileUrl(person.profile_path)"
-                  [alt]="person.name"
-                  loading="lazy"
-                  width="185"
-                  height="278"
-                />
-                <h3>{{ person.name }}</h3>
-                @if (person.character) {
-                  <p>{{ person.character }}</p>
-                }
-              </article>
-            }
+            <button
+              class="carousel-arrow carousel-arrow--right"
+              type="button"
+              (click)="nextCast()"
+              aria-label="Next cast members"
+            >
+              <span class="material-icons" aria-hidden="true">chevron_right</span>
+            </button>
           </div>
         </section>
       }
 
-      @if (detailsResource.value().videos.length) {
-        <section class="rail" aria-labelledby="videos-title">
+      @if (detailsResource.value().videos.length || detailsResource.value().images.length) {
+        <section class="rail media-tabs" aria-labelledby="media-title">
           <div class="section-heading">
-            <h2 id="videos-title">Videos</h2>
+            <h2 id="media-title">Photos & Videos</h2>
           </div>
-          <div class="video-grid">
-            @for (video of detailsResource.value().videos; track video.id) {
-              <a class="video-card" [href]="youtubeUrl(video)" target="_blank" rel="noopener">
-                <img
-                  [src]="youtubeThumbnail(video)"
-                  [alt]="video.name"
-                  loading="lazy"
-                  width="480"
-                  height="360"
-                />
-                <span>{{ video.name }}</span>
-              </a>
-            }
+          <div class="tab-list" role="tablist" aria-label="Photos and videos">
+            <button
+              type="button"
+              role="tab"
+              [class.is-active]="mediaTab() === 'photos'"
+              [attr.aria-selected]="mediaTab() === 'photos'"
+              (click)="mediaTab.set('photos')"
+            >
+              Photos
+            </button>
+            <button
+              type="button"
+              role="tab"
+              [class.is-active]="mediaTab() === 'videos'"
+              [attr.aria-selected]="mediaTab() === 'videos'"
+              (click)="mediaTab.set('videos')"
+            >
+              Videos
+            </button>
           </div>
+
+          @if (mediaTab() === 'photos') {
+            <div class="image-grid" role="tabpanel">
+              @for (image of detailsResource.value().images; track image.file_path) {
+                <button
+                  type="button"
+                  class="image-card"
+                  (click)="selectedImage.set(imageUrl(image.file_path, 'w780'))"
+                  [attr.aria-label]="'Open image for ' + title()"
+                >
+                  <img
+                    [src]="imageUrl(image.file_path, 'w342')"
+                    alt=""
+                    loading="lazy"
+                    width="342"
+                    height="192"
+                  />
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="video-grid" role="tabpanel">
+              @for (video of detailsResource.value().videos; track video.id) {
+                <a class="video-card" [href]="youtubeUrl(video)" target="_blank" rel="noopener">
+                  <img
+                    [src]="youtubeThumbnail(video)"
+                    [alt]="video.name"
+                    loading="lazy"
+                    width="480"
+                    height="360"
+                  />
+                  <span>{{ video.name }}</span>
+                </a>
+              }
+            </div>
+          }
         </section>
       }
 
-      @if (detailsResource.value().images.length) {
-        <section class="rail" aria-labelledby="images-title">
-          <div class="section-heading">
-            <h2 id="images-title">Images</h2>
-          </div>
-          <div class="image-strip">
-            @for (image of detailsResource.value().images; track image.file_path) {
-              <img
-                [src]="imageUrl(image.file_path)"
-                alt=""
-                loading="lazy"
-                width="342"
-                height="192"
-              />
-            }
-          </div>
-        </section>
+      @if (selectedImage()) {
+        <div class="image-viewer" role="dialog" aria-modal="true" aria-label="Selected image">
+          <button type="button" class="image-viewer__close" (click)="selectedImage.set(null)">
+            <span class="material-icons" aria-hidden="true">close</span>
+            <span>Close</span>
+          </button>
+          <button type="button" class="image-viewer__backdrop" (click)="selectedImage.set(null)">
+            <img [src]="selectedImage()" [alt]="title() + ' selected image'" />
+          </button>
+        </div>
       }
 
       @if (detailsResource.value().similar.length) {
@@ -243,6 +288,8 @@ export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
   protected readonly tmdb = inject(TmdbService);
   protected readonly castIndex = signal(0);
+  protected readonly mediaTab = signal<'photos' | 'videos'>('photos');
+  protected readonly selectedImage = signal<string | null>(null);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -353,8 +400,8 @@ export class DetailsComponent {
     return this.tmdb.profileUrl(path);
   }
 
-  protected imageUrl(path: string): string {
-    return this.tmdb.imageUrl(path, 'w342') ?? this.tmdb.posterFallbackImage;
+  protected imageUrl(path: string, size = 'w342'): string {
+    return this.tmdb.imageUrl(path, size) ?? this.tmdb.posterFallbackImage;
   }
 
   protected youtubeThumbnail(video: TmdbVideo): string {
