@@ -42,6 +42,7 @@ export interface TmdbMediaResult {
   backdrop_path?: string | null;
   release_date?: string;
   first_air_date?: string;
+  original_language?: string;
   vote_average?: number;
   vote_count?: number;
   popularity?: number;
@@ -185,9 +186,15 @@ export interface SearchPageResult {
 }
 
 export interface HomeSections {
+  inTheatres: MediaItem[];
   trending: MediaItem[];
   movies: MediaItem[];
   tvShows: MediaItem[];
+  movieGenres: TmdbGenre[];
+  tvGenres: TmdbGenre[];
+}
+
+export interface BrowseCategories {
   movieGenres: TmdbGenre[];
   tvGenres: TmdbGenre[];
 }

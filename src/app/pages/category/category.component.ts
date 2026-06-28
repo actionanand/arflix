@@ -51,9 +51,17 @@ const emptyBrowseResult: BrowsePageResult = {
           <button type="button" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">
             Previous
           </button>
-          <div>
-            <strong>{{ page() }}</strong>
-            <span>of {{ browseResource.value().totalPages }}</span>
+          <div class="page-number-list">
+            @for (pageNumber of pageNumbers(); track pageNumber) {
+              <button
+                type="button"
+                [class.is-active]="pageNumber === page()"
+                [attr.aria-current]="pageNumber === page() ? 'page' : null"
+                (click)="goToPage(pageNumber)"
+              >
+                {{ pageNumber }}
+              </button>
+            }
           </div>
           <button
             type="button"
@@ -106,6 +114,9 @@ export class CategoryComponent {
     }),
     loader: ({ params, abortSignal }) => this.tmdb.browseByCategory(params, abortSignal),
   });
+  protected readonly pageNumbers = computed(() =>
+    this.visiblePageNumbers(this.page(), this.browseResource.value().totalPages),
+  );
 
   protected goToPage(page: number): void {
     void this.router.navigate([], {
@@ -114,5 +125,15 @@ export class CategoryComponent {
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  private visiblePageNumbers(currentPage: number, totalPages: number): number[] {
+    const lastPage = Math.min(totalPages, 500);
+    const start = Math.max(1, Math.min(currentPage - 2, lastPage - 4));
+    const count = Math.min(5, lastPage);
+
+    return Array.from({ length: count }, (_, index) => start + index).filter(
+      (page) => page <= lastPage,
+    );
   }
 }

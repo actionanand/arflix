@@ -67,6 +67,10 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '',
+    title: '404 - ARFlix',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.component').then(
+        (component) => component.NotFoundComponent,
+      ),
   },
 ];

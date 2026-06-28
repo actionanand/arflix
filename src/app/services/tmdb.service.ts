@@ -2,6 +2,7 @@ import { Service } from '@angular/core';
 
 import { environment } from '../../environments/environment';
 import {
+  BrowseCategories,
   BrowsePageResult,
   BrowseRequest,
   DetailsPageData,
@@ -36,8 +37,9 @@ export class TmdbService {
   readonly castFallbackImage = 'assets/images/man-placeholder.jpg';
 
   async getHomeSections(abortSignal?: AbortSignal): Promise<HomeSections> {
-    const [trending, movies, tvShows, movieGenres, tvGenres] = await Promise.all([
+    const [trending, movies, inTheatres, tvShows, movieGenres, tvGenres] = await Promise.all([
       this.getList('/trending/all/day', { page: 1 }, abortSignal),
+      this.getList('/movie/popular', { page: 1 }, abortSignal),
       this.getList('/movie/now_playing', { page: 1 }, abortSignal),
       this.getList('/tv/on_the_air', { page: 1 }, abortSignal),
       this.getGenres('movie', abortSignal),
@@ -45,11 +47,24 @@ export class TmdbService {
     ]);
 
     return {
+      inTheatres: inTheatres.slice(0, 10),
       trending: trending.slice(0, 8),
       movies: movies.slice(0, 10),
       tvShows: tvShows.slice(0, 10),
-      movieGenres: movieGenres.slice(0, 12),
-      tvGenres: tvGenres.slice(0, 12),
+      movieGenres,
+      tvGenres,
+    };
+  }
+
+  async getBrowseCategories(abortSignal?: AbortSignal): Promise<BrowseCategories> {
+    const [movieGenres, tvGenres] = await Promise.all([
+      this.getGenres('movie', abortSignal),
+      this.getGenres('tv', abortSignal),
+    ]);
+
+    return {
+      movieGenres,
+      tvGenres,
     };
   }
 
@@ -167,7 +182,7 @@ export class TmdbService {
       details,
       cast: credits.cast.slice(0, 8),
       certification,
-      images: [...images.backdrops, ...images.posters].slice(0, 12),
+      images: [...images.backdrops, ...images.posters],
       similar: similar.slice(0, 10),
       trailerUrl: this.findTrailerUrl(videos.results),
       videos: videos.results.filter((video) => video.site === 'YouTube').slice(0, 8),
@@ -240,10 +255,19 @@ export class TmdbService {
 
   audioFeedLabels(details: TmdbDetails): string {
     const feeds = details.spoken_languages
-      .map((language) => language.iso_639_1.toUpperCase())
+      .map((language) => language.english_name || language.name)
       .filter((language) => language.length > 0);
 
     return feeds.length ? feeds.join(', ') : 'Unavailable';
+  }
+
+  originalLanguageLabel(details: TmdbDetails): string {
+    const code = details.original_language;
+    const spokenLanguage = details.spoken_languages.find((language) => language.iso_639_1 === code);
+
+    return (
+      spokenLanguage?.english_name || spokenLanguage?.name || code?.toUpperCase() || 'Unavailable'
+    );
   }
 
   kidsRatingLabel(certification: string | null): string {

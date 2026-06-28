@@ -1,7 +1,7 @@
-import { NgOptimizedImage } from '@angular/common';
+import { Location, NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
@@ -43,13 +43,14 @@ interface DetailsRequest {
 
 @Component({
   selector: 'app-details-page',
-  imports: [MediaCardComponent, NgOptimizedImage, RouterLink],
+  imports: [MediaCardComponent, NgOptimizedImage],
   template: `
     @if (detailsResource.error()) {
-      <section class="notice" aria-live="polite">
-        <h1>Details unavailable</h1>
-        <p>Please try again in a moment.</p>
-        <button type="button" (click)="detailsResource.reload()">Retry</button>
+      <section class="not-found" aria-live="polite" aria-labelledby="missing-title">
+        <p class="eyebrow">404</p>
+        <h1 id="missing-title">Requested page not there</h1>
+        <p>The requested movie or web series could not be found.</p>
+        <button type="button" class="button-link" (click)="goBack()">Back to results</button>
       </section>
     } @else {
       @if (detailsResource.isLoading()) {
@@ -65,7 +66,7 @@ interface DetailsRequest {
         </div>
 
         <div class="detail__content">
-          <a class="back-link" routerLink="/">Back home</a>
+          <button type="button" class="back-link" (click)="goBack()">Back to results</button>
           <p class="eyebrow">{{ mediaLabel() }}</p>
           <h1 id="detail-title">{{ title() }}</h1>
           @if (tagline()) {
@@ -221,7 +222,7 @@ interface DetailsRequest {
 
           @if (mediaTab() === 'photos') {
             <div class="image-grid" role="tabpanel">
-              @for (image of detailsResource.value().images; track image.file_path) {
+              @for (image of visibleImages(); track image.file_path) {
                 <button
                   type="button"
                   class="image-card"
@@ -238,6 +239,11 @@ interface DetailsRequest {
                 </button>
               }
             </div>
+            @if (canLoadMoreImages()) {
+              <button type="button" class="load-more-button" (click)="loadMoreImages()">
+                Load more photos
+              </button>
+            }
           } @else {
             <div class="video-grid" role="tabpanel">
               @for (video of detailsResource.value().videos; track video.id) {
@@ -259,13 +265,27 @@ interface DetailsRequest {
 
       @if (selectedImage()) {
         <div class="image-viewer" role="dialog" aria-modal="true" aria-label="Selected image">
+          <button
+            type="button"
+            class="image-viewer__scrim"
+            aria-label="Close selected image"
+            (click)="selectedImage.set(null)"
+          ></button>
           <button type="button" class="image-viewer__close" (click)="selectedImage.set(null)">
             <span class="material-icons" aria-hidden="true">close</span>
             <span>Close</span>
           </button>
-          <button type="button" class="image-viewer__backdrop" (click)="selectedImage.set(null)">
+          <a
+            class="image-viewer__download"
+            [href]="selectedImage()"
+            [download]="downloadFileName()"
+          >
+            <span class="material-icons" aria-hidden="true">download</span>
+            <span>Download</span>
+          </a>
+          <div class="image-viewer__image">
             <img [src]="selectedImage()" [alt]="title() + ' selected image'" />
-          </button>
+          </div>
         </div>
       }
 
@@ -286,8 +306,10 @@ interface DetailsRequest {
 })
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
   protected readonly tmdb = inject(TmdbService);
   protected readonly castIndex = signal(0);
+  protected readonly imageVisibleCount = signal(9);
   protected readonly mediaTab = signal<'photos' | 'videos'>('photos');
   protected readonly selectedImage = signal<string | null>(null);
   private readonly paramMap = toSignal(this.route.paramMap, {
@@ -356,6 +378,10 @@ export class DetailsComponent {
         { label: 'Duration', value: this.runtime() },
         { label: 'Revenue', value: this.tmdb.moneyLabel(details.revenue) },
         { label: 'Languages', value: this.tmdb.languageLabels(details) },
+        { label: 'Original Language', value: this.tmdb.originalLanguageLabel(details) },
+        { label: 'Status', value: details.status || 'Unavailable' },
+        { label: 'Popularity', value: String(Math.round(details.popularity ?? 0)) },
+        { label: 'Votes', value: String(details.vote_count ?? 0) },
         { label: 'Production', value: companies },
         { label: 'IMDb Reference', value: details.imdb_id || 'Unavailable' },
       ];
@@ -367,6 +393,10 @@ export class DetailsComponent {
       { label: 'Genre', value: genreNames },
       { label: 'Duration', value: this.runtime() },
       { label: 'Languages', value: this.tmdb.languageLabels(details) },
+      { label: 'Original Language', value: this.tmdb.originalLanguageLabel(details) },
+      { label: 'Status', value: details.status || 'Unavailable' },
+      { label: 'Popularity', value: String(Math.round(details.popularity ?? 0)) },
+      { label: 'Votes', value: String(details.vote_count ?? 0) },
       {
         label: 'Seasons',
         value: 'number_of_seasons' in details ? String(details.number_of_seasons) : 'Unavailable',
@@ -382,9 +412,30 @@ export class DetailsComponent {
             ? details.networks.map((network) => network.name).join(', ') || 'Unavailable'
             : 'Unavailable',
       },
+      {
+        label: 'Origin Country',
+        value:
+          'origin_country' in details
+            ? details.origin_country.join(', ') || 'Unavailable'
+            : 'Unavailable',
+      },
       { label: 'Production', value: companies },
     ];
   });
+  protected readonly visibleImages = computed(() =>
+    this.detailsResource.value().images.slice(0, this.imageVisibleCount()),
+  );
+  protected readonly canLoadMoreImages = computed(
+    () => this.imageVisibleCount() < this.detailsResource.value().images.length,
+  );
+  protected readonly downloadFileName = computed(
+    () =>
+      `${
+        this.title()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-') || 'arflix-image'
+      }.jpg`,
+  );
   protected readonly visibleCast = computed(() => {
     const cast = this.detailsResource.value().cast;
     const index = this.castIndex();
@@ -410,6 +461,14 @@ export class DetailsComponent {
 
   protected youtubeUrl(video: TmdbVideo): string {
     return this.tmdb.youtubeUrl(video);
+  }
+
+  protected loadMoreImages(): void {
+    this.imageVisibleCount.update((count) => count + 9);
+  }
+
+  protected goBack(): void {
+    this.location.back();
   }
 
   protected nextCast(): void {
