@@ -14,6 +14,14 @@ export const routes: Routes = [
       import('./pages/search/search.component').then((component) => component.SearchComponent),
   },
   {
+    path: 'category/:type/:genreId',
+    title: 'Category - ARFlix',
+    loadComponent: () =>
+      import('./pages/category/category.component').then(
+        (component) => component.CategoryComponent,
+      ),
+  },
+  {
     path: 'movie/:id',
     title: 'Movie Details - ARFlix',
     data: {

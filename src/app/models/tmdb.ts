@@ -17,6 +17,19 @@ export interface TmdbNetwork {
   logo_path: string | null;
 }
 
+export interface TmdbSpokenLanguage {
+  english_name: string;
+  iso_639_1: string;
+  name: string;
+}
+
+export interface TmdbProductionCompany {
+  id: number;
+  logo_path: string | null;
+  name: string;
+  origin_country: string;
+}
+
 export interface TmdbMediaResult {
   id: number;
   media_type?: MediaType | 'person';
@@ -60,12 +73,61 @@ export interface TmdbCastMember {
   profile_path: string | null;
 }
 
+export interface TmdbImageSet {
+  backdrops: TmdbImage[];
+  posters: TmdbImage[];
+}
+
+export interface TmdbImage {
+  file_path: string;
+  height: number;
+  width: number;
+}
+
+export interface TmdbProviderResponse {
+  results: Record<string, TmdbRegionProviders>;
+}
+
+export interface TmdbRegionProviders {
+  flatrate?: TmdbProvider[];
+  rent?: TmdbProvider[];
+  buy?: TmdbProvider[];
+}
+
+export interface TmdbProvider {
+  logo_path: string | null;
+  provider_id: number;
+  provider_name: string;
+}
+
+export interface TmdbMovieReleaseDates {
+  results: {
+    iso_3166_1: string;
+    release_dates: {
+      certification: string;
+      type: number;
+    }[];
+  }[];
+}
+
+export interface TmdbTvContentRatings {
+  results: {
+    iso_3166_1: string;
+    rating: string;
+  }[];
+}
+
 export interface TmdbMovieDetails extends TmdbMediaResult {
+  adult: boolean;
+  budget: number;
   media_type?: 'movie';
   genres: TmdbGenre[];
   imdb_id: string | null;
+  production_companies: TmdbProductionCompany[];
   release_date: string;
+  revenue: number;
   runtime: number | null;
+  spoken_languages: TmdbSpokenLanguage[];
   status: string;
   tagline: string;
   title: string;
@@ -77,12 +139,18 @@ export interface TmdbTvDetails extends TmdbMediaResult {
   episode_run_time: number[];
   first_air_date: string;
   genres: TmdbGenre[];
+  homepage: string;
+  languages: string[];
   name: string;
   networks: TmdbNetwork[];
   number_of_episodes: number;
   number_of_seasons: number;
+  origin_country: string[];
+  production_companies: TmdbProductionCompany[];
+  spoken_languages: TmdbSpokenLanguage[];
   status: string;
   tagline: string;
+  type: string;
 }
 
 export type TmdbDetails = TmdbMovieDetails | TmdbTvDetails;
@@ -115,11 +183,30 @@ export interface HomeSections {
   trending: MediaItem[];
   movies: MediaItem[];
   tvShows: MediaItem[];
+  movieGenres: TmdbGenre[];
+  tvGenres: TmdbGenre[];
 }
 
 export interface DetailsPageData {
   details: TmdbDetails;
   similar: MediaItem[];
   cast: TmdbCastMember[];
+  certification: string | null;
+  images: TmdbImage[];
   trailerUrl: string | null;
+  videos: TmdbVideo[];
+  watchProviders: TmdbProvider[];
+}
+
+export interface BrowseRequest {
+  genreId: number;
+  page: number;
+  type: MediaType;
+}
+
+export interface BrowsePageResult {
+  genreName: string;
+  items: MediaItem[];
+  totalPages: number;
+  totalResults: number;
 }

@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -6,16 +7,12 @@ import { TmdbService } from '../../services/tmdb.service';
 
 @Component({
   selector: 'app-media-card',
-  imports: [RouterLink],
+  imports: [NgOptimizedImage, RouterLink],
   template: `
     <a class="media-card" [routerLink]="route()" [attr.aria-label]="ariaLabel()">
       <div class="media-card__poster">
         @if (posterUrl()) {
           <img [src]="posterUrl()" [alt]="posterAlt()" loading="lazy" width="342" height="513" />
-        } @else {
-          <div class="media-card__fallback" aria-hidden="true">
-            <span>{{ initials() }}</span>
-          </div>
         }
       </div>
 
@@ -28,7 +25,8 @@ import { TmdbService } from '../../services/tmdb.service';
         </p>
         <h3>{{ item().title }}</h3>
         <p class="media-card__rating" aria-label="Rating {{ ratingLabel() }}">
-          Rating {{ ratingLabel() }}
+          <img ngSrc="assets/images/star.svg" alt="" width="14" height="14" />
+          {{ ratingLabel() }}
         </p>
       </div>
     </a>
@@ -43,7 +41,7 @@ export class MediaCardComponent {
     `/${this.item().mediaType === 'movie' ? 'movie' : 'tv-show'}`,
     this.item().id,
   ]);
-  protected readonly posterUrl = computed(() => this.tmdb.imageUrl(this.item().posterPath));
+  protected readonly posterUrl = computed(() => this.tmdb.posterUrl(this.item().posterPath));
   protected readonly posterAlt = computed(() => `${this.item().title} poster`);
   protected readonly releaseYear = computed(() => this.item().releaseDate.slice(0, 4));
   protected readonly mediaLabel = computed(() =>
@@ -54,13 +52,5 @@ export class MediaCardComponent {
   );
   protected readonly ariaLabel = computed(
     () => `Open ${this.item().title} ${this.mediaLabel()} details`,
-  );
-  protected readonly initials = computed(() =>
-    this.item()
-      .title.split(' ')
-      .slice(0, 2)
-      .map((word) => word[0])
-      .join('')
-      .toUpperCase(),
   );
 }

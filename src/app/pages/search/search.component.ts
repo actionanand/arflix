@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -91,11 +91,14 @@ const emptySearchResult: SearchPageResult = {
       </section>
 
       @if (query() && searchResource.value().totalPages > 1) {
-        <nav class="pager" aria-label="Search result pages">
+        <nav class="pager pager--modern" aria-label="Search result pages">
           <button type="button" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">
             Previous
           </button>
-          <span>Page {{ page() }} of {{ searchResource.value().totalPages }}</span>
+          <div>
+            <strong>{{ page() }}</strong>
+            <span>of {{ searchResource.value().totalPages }}</span>
+          </div>
           <button
             type="button"
             [disabled]="page() >= searchResource.value().totalPages"
@@ -119,16 +122,17 @@ export class SearchComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly tmdb = inject(TmdbService);
+  private searchTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly queryParams = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
 
+  protected readonly draftQuery = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
   protected readonly query = computed(() => this.queryParams().get('q')?.trim() ?? '');
   protected readonly type = computed<SearchType>(() =>
     this.toSearchType(this.queryParams().get('type')),
   );
   protected readonly page = computed(() => this.toPageNumber(this.queryParams().get('page')));
-  protected readonly draftQuery = computed(() => this.query());
   protected readonly title = computed(() =>
     this.query() ? `Results for "${this.query()}"` : 'Find a title',
   );
@@ -155,24 +159,32 @@ export class SearchComponent {
 
   protected updateDraftQuery(event: Event): void {
     const input = event.target as HTMLInputElement | null;
-    void this.router.navigate([], {
-      queryParams: {
-        q: input?.value ?? '',
-        page: 1,
-      },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+    this.draftQuery.set(input?.value ?? '');
+
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+
+    this.searchTimer = setTimeout(() => {
+      this.commitSearch(true);
+    }, 650);
   }
 
   protected submitSearch(event: Event): void {
     event.preventDefault();
+    this.commitSearch(false);
+  }
+
+  protected commitSearch(replaceUrl: boolean): void {
+    const query = this.draftQuery().trim();
+
     void this.router.navigate([], {
       queryParams: {
-        q: this.query(),
-        page: 1,
+        q: query || null,
+        page: query ? 1 : null,
       },
       queryParamsHandling: 'merge',
+      replaceUrl,
     });
   }
 
