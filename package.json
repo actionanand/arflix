@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "develop": "ng serve --port 3026",
+    "develop": "ng serve --port 3028",
     "build": "ng build",
     "build:gh": "ng build --base-href /arflix/",
     "watch": "ng build --watch --configuration development",
