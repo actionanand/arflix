@@ -178,6 +178,10 @@ export class TmdbService {
       ],
     );
 
+    if (!details?.id) {
+      throw new Error('TMDb details unavailable');
+    }
+
     return {
       details,
       cast: credits.cast.slice(0, 8),

@@ -100,6 +100,13 @@ input:focus-visible {
   font-weight: 900;
 }
 
+.brand img {
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 0.45rem;
+  object-fit: cover;
+}
+
 .brand strong {
   font-size: 1.05rem;
   letter-spacing: 0;
@@ -258,6 +265,11 @@ h3 {
   color: var(--text);
   border-color: var(--line);
   background: rgba(255, 255, 255, 0.08);
+}
+
+.button-link--fit {
+  width: max-content;
+  justify-self: center;
 }
 
 .spotlight,
@@ -638,6 +650,11 @@ h3 {
   cursor: pointer;
 }
 
+.back-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .stat-row,
 .actions {
   display: flex;
@@ -943,8 +960,100 @@ h3 {
   display: grid;
   min-height: 60dvh;
   align-content: center;
+  justify-items: center;
   gap: 1rem;
   text-align: center;
+}
+
+.not-found--compact {
+  min-height: 34dvh;
+}
+
+.film-loader {
+  position: relative;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+  width: 5.5rem;
+  height: 3.2rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 18%,
+      rgba(247, 201, 72, 0.28) 18% 24%,
+      transparent 24% 42%,
+      rgba(247, 201, 72, 0.28) 42% 48%,
+      transparent 48% 66%,
+      rgba(247, 201, 72, 0.28) 66% 72%,
+      transparent 72%
+    ),
+    rgba(255, 255, 255, 0.04);
+  animation: film-float 2.4s ease-in-out infinite;
+}
+
+.film-loader::before,
+.film-loader::after {
+  position: absolute;
+  left: 0.45rem;
+  right: 0.45rem;
+  height: 0.22rem;
+  content: '';
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0 0.28rem,
+    transparent 0.28rem 0.62rem
+  );
+}
+
+.film-loader::before {
+  top: 0.35rem;
+}
+
+.film-loader::after {
+  bottom: 0.35rem;
+}
+
+.film-loader span {
+  width: 0.5rem;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: var(--accent);
+  animation: film-dot 1.2s ease-in-out infinite;
+}
+
+.film-loader span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.film-loader span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes film-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.35rem);
+  }
+}
+
+@keyframes film-dot {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .loading-grid {

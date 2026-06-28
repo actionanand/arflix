@@ -1,10 +1,11 @@
-import { Location, NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
+import { NavigationHistoryService } from '../../services/navigation-history.service';
 import { TmdbService } from '../../services/tmdb.service';
 
 const emptyDetails: DetailsPageData = {
@@ -45,12 +46,25 @@ interface DetailsRequest {
   selector: 'app-details-page',
   imports: [MediaCardComponent, NgOptimizedImage],
   template: `
-    @if (detailsResource.error()) {
-      <section class="not-found" aria-live="polite" aria-labelledby="missing-title">
+    @if (detailNotFound()) {
+      <section
+        class="not-found not-found--compact"
+        aria-live="polite"
+        aria-labelledby="missing-title"
+      >
+        <div class="film-loader" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         <p class="eyebrow">404</p>
         <h1 id="missing-title">Requested page not there</h1>
         <p>The requested movie or web series could not be found.</p>
-        <button type="button" class="button-link" (click)="goBack()">Back to results</button>
+        @if (canGoBack()) {
+          <button type="button" class="button-link button-link--fit" (click)="goBack()">
+            Back to results
+          </button>
+        }
       </section>
     } @else {
       @if (detailsResource.isLoading()) {
@@ -66,7 +80,9 @@ interface DetailsRequest {
         </div>
 
         <div class="detail__content">
-          <button type="button" class="back-link" (click)="goBack()">Back to results</button>
+          <button type="button" class="back-link" [disabled]="!canGoBack()" (click)="goBack()">
+            Back to results
+          </button>
           <p class="eyebrow">{{ mediaLabel() }}</p>
           <h1 id="detail-title">{{ title() }}</h1>
           @if (tagline()) {
@@ -275,14 +291,10 @@ interface DetailsRequest {
             <span class="material-icons" aria-hidden="true">close</span>
             <span>Close</span>
           </button>
-          <a
-            class="image-viewer__download"
-            [href]="selectedImage()"
-            [download]="downloadFileName()"
-          >
+          <button type="button" class="image-viewer__download" (click)="downloadSelectedImage()">
             <span class="material-icons" aria-hidden="true">download</span>
             <span>Download</span>
-          </a>
+          </button>
           <div class="image-viewer__image">
             <img [src]="selectedImage()" [alt]="title() + ' selected image'" />
           </div>
@@ -306,7 +318,7 @@ interface DetailsRequest {
 })
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly location = inject(Location);
+  private readonly navigationHistory = inject(NavigationHistoryService);
   protected readonly tmdb = inject(TmdbService);
   protected readonly castIndex = signal(0);
   protected readonly imageVisibleCount = signal(9);
@@ -337,6 +349,13 @@ export class DetailsComponent {
     loader: ({ params, abortSignal }) => this.tmdb.getDetails(params.type, params.id, abortSignal),
   });
   protected readonly details = computed<TmdbDetails>(() => this.detailsResource.value().details);
+  protected readonly detailNotFound = computed(
+    () =>
+      this.id() <= 0 ||
+      !!this.detailsResource.error() ||
+      (!this.detailsResource.isLoading() && this.details().id <= 0),
+  );
+  protected readonly canGoBack = computed(() => this.navigationHistory.canGoBack());
   protected readonly title = computed(() => this.tmdb.mediaTitle(this.details()));
   protected readonly mediaLabel = computed(() =>
     this.mediaType() === 'movie' ? 'Movie' : 'Web series / TV serial',
@@ -468,7 +487,28 @@ export class DetailsComponent {
   }
 
   protected goBack(): void {
-    this.location.back();
+    this.navigationHistory.goBack();
+  }
+
+  protected async downloadSelectedImage(): Promise<void> {
+    const imageUrl = this.selectedImage();
+
+    if (!imageUrl) {
+      return;
+    }
+
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = objectUrl;
+    link.download = this.downloadFileName();
+    link.rel = 'noopener';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
   }
 
   protected nextCast(): void {
