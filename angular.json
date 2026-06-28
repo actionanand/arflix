@@ -8,7 +8,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "lingua-log": {
+    "arflix": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -67,10 +67,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "lingua-log:build:production"
+              "buildTarget": "arflix:build:production"
             },
             "development": {
-              "buildTarget": "lingua-log:build:development"
+              "buildTarget": "arflix:build:development"
             }
           },
           "defaultConfiguration": "development"
