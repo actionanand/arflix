@@ -29,7 +29,7 @@ jobs:
           PASSWORD_HASH: ${{ secrets.PASSWORD_HASH }}
         run: |
           sed -i "s|TMDB_API_READ_TOKEN_PLACEHOLDER|${{ env.TMDB_API_READ_TOKEN }}|g" src/environments/environment.ts
-          sed -i "s|PASSWORD_HASH_PLACEHOLDER|${{ env.PASSWORD_HASH }}|g" src/environments/environment.t
+          sed -i "s|PASSWORD_HASH_PLACEHOLDER|${{ env.PASSWORD_HASH }}|g" src/environments/environment.ts
 
       - name: Extract repository name from package.json
         id: package
