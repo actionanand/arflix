@@ -12,6 +12,10 @@ npm run develop
 
 Once the server is running, open your browser and navigate to `http://localhost:3026/`. The application will automatically reload whenever you modify any of the source files.
 
+## Live urls
+
+1. https://actionanand.github.io/arflix/
+
 ## Cloning Guide
 
 1.  Clone only the remote primary HEAD (default: origin/main)
