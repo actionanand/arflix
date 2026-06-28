@@ -1,6 +1,6 @@
 <header class="app-header">
   <a class="brand" routerLink="/" aria-label="ARFlix home">
-    <span aria-hidden="true">AR</span>
+    <img src="ar_flix.png" alt="" width="42" height="42" />
     <strong>ARFlix</strong>
   </a>
 
@@ -8,8 +8,8 @@
     <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
       >Home</a
     >
-    <a routerLink="/category/movie/28" routerLinkActive="is-active">Movies</a>
-    <a routerLink="/category/tv/18" routerLinkActive="is-active">TV</a>
+    <a routerLink="/movies" routerLinkActive="is-active">Movies</a>
+    <a routerLink="/tv-shows" routerLinkActive="is-active">TV</a>
     <a routerLink="/search" routerLinkActive="is-active">Search</a>
   </nav>
 </header>

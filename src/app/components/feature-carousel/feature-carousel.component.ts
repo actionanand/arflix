@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, OnDestroy, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { MediaItem } from '../../models/tmdb';
@@ -10,7 +10,14 @@ import { TmdbService } from '../../services/tmdb.service';
   imports: [NgOptimizedImage, RouterLink],
   template: `
     @if (activeItem()) {
-      <section class="feature-carousel" aria-labelledby="carousel-title">
+      <section
+        class="feature-carousel"
+        aria-labelledby="carousel-title"
+        (mouseenter)="pauseAutoPlay()"
+        (mouseleave)="startAutoPlay()"
+        (focusin)="pauseAutoPlay()"
+        (focusout)="startAutoPlay()"
+      >
         <div class="feature-carousel__media">
           <img
             [src]="backdropUrl()"
@@ -62,11 +69,12 @@ import { TmdbService } from '../../services/tmdb.service';
     }
   `,
 })
-export class FeatureCarouselComponent {
+export class FeatureCarouselComponent implements OnDestroy {
   readonly items = input.required<MediaItem[]>();
   readonly label = input('Featured');
 
   private readonly tmdb = inject(TmdbService);
+  private autoPlayTimer: ReturnType<typeof setInterval> | undefined;
   protected readonly currentIndex = signal(0);
   protected readonly visibleItems = computed(() => this.items().slice(0, 6));
   protected readonly activeItem = computed(() => this.visibleItems()[this.currentIndex()]);
@@ -88,6 +96,14 @@ export class FeatureCarouselComponent {
     return item ? [`/${item.mediaType === 'movie' ? 'movie' : 'tv-show'}`, item.id] : ['/'];
   });
 
+  constructor() {
+    this.startAutoPlay();
+  }
+
+  ngOnDestroy(): void {
+    this.pauseAutoPlay();
+  }
+
   protected next(): void {
     const count = this.visibleItems().length;
     this.currentIndex.update((index) => (count ? (index + 1) % count : 0));
@@ -100,5 +116,24 @@ export class FeatureCarouselComponent {
 
   protected goTo(index: number): void {
     this.currentIndex.set(index);
+  }
+
+  protected startAutoPlay(): void {
+    if (this.autoPlayTimer) {
+      return;
+    }
+
+    this.autoPlayTimer = setInterval(() => {
+      this.next();
+    }, 5000);
+  }
+
+  protected pauseAutoPlay(): void {
+    if (!this.autoPlayTimer) {
+      return;
+    }
+
+    clearInterval(this.autoPlayTimer);
+    this.autoPlayTimer = undefined;
   }
 }

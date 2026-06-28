@@ -1,5 +1,6 @@
 export type MediaType = 'movie' | 'tv';
 export type SearchType = 'all' | MediaType;
+export type SearchSort = 'relevance' | 'rating' | 'newest';
 
 export interface TmdbGenre {
   id: number;
@@ -31,6 +32,7 @@ export interface TmdbProductionCompany {
 }
 
 export interface TmdbMediaResult {
+  adult?: boolean;
   id: number;
   media_type?: MediaType | 'person';
   title?: string;
@@ -40,6 +42,7 @@ export interface TmdbMediaResult {
   backdrop_path?: string | null;
   release_date?: string;
   first_air_date?: string;
+  original_language?: string;
   vote_average?: number;
   vote_count?: number;
   popularity?: number;
@@ -168,9 +171,12 @@ export interface MediaItem {
 }
 
 export interface SearchRequest {
+  minRating: number;
   query: string;
+  sort: SearchSort;
   type: SearchType;
   page: number;
+  year: string;
 }
 
 export interface SearchPageResult {
@@ -180,9 +186,15 @@ export interface SearchPageResult {
 }
 
 export interface HomeSections {
+  inTheatres: MediaItem[];
   trending: MediaItem[];
   movies: MediaItem[];
   tvShows: MediaItem[];
+  movieGenres: TmdbGenre[];
+  tvGenres: TmdbGenre[];
+}
+
+export interface BrowseCategories {
   movieGenres: TmdbGenre[];
   tvGenres: TmdbGenre[];
 }
@@ -199,7 +211,7 @@ export interface DetailsPageData {
 }
 
 export interface BrowseRequest {
-  genreId: number;
+  genreId?: number;
   page: number;
   type: MediaType;
 }
