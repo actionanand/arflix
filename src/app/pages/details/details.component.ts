@@ -1,10 +1,11 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
+import { NavigationHistoryService } from '../../services/navigation-history.service';
 import { TmdbService } from '../../services/tmdb.service';
 
 const emptyDetails: DetailsPageData = {
@@ -43,13 +44,27 @@ interface DetailsRequest {
 
 @Component({
   selector: 'app-details-page',
-  imports: [MediaCardComponent, NgOptimizedImage, RouterLink],
+  imports: [MediaCardComponent, NgOptimizedImage],
   template: `
-    @if (detailsResource.error()) {
-      <section class="notice" aria-live="polite">
-        <h1>Details unavailable</h1>
-        <p>Please try again in a moment.</p>
-        <button type="button" (click)="detailsResource.reload()">Retry</button>
+    @if (detailNotFound()) {
+      <section
+        class="not-found not-found--compact"
+        aria-live="polite"
+        aria-labelledby="missing-title"
+      >
+        <div class="film-loader" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <p class="eyebrow">404</p>
+        <h1 id="missing-title">Requested page not there</h1>
+        <p>The requested movie or web series could not be found.</p>
+        @if (canGoBack()) {
+          <button type="button" class="button-link button-link--fit" (click)="goBack()">
+            Back to results
+          </button>
+        }
       </section>
     } @else {
       @if (detailsResource.isLoading()) {
@@ -65,7 +80,9 @@ interface DetailsRequest {
         </div>
 
         <div class="detail__content">
-          <a class="back-link" routerLink="/">Back home</a>
+          <button type="button" class="back-link" [disabled]="!canGoBack()" (click)="goBack()">
+            Back to results
+          </button>
           <p class="eyebrow">{{ mediaLabel() }}</p>
           <h1 id="detail-title">{{ title() }}</h1>
           @if (tagline()) {
@@ -151,77 +168,137 @@ interface DetailsRequest {
       </section>
 
       @if (detailsResource.value().cast.length) {
-        <section class="rail" aria-labelledby="cast-title">
+        <section class="rail cast-carousel" aria-labelledby="cast-title">
           <div class="section-heading">
             <h2 id="cast-title">Top cast</h2>
-            <div class="carousel-controls" aria-label="Cast carousel controls">
-              <button type="button" (click)="previousCast()" aria-label="Previous cast members">
-                Prev
-              </button>
-              <button type="button" (click)="nextCast()" aria-label="Next cast members">
-                Next
-              </button>
+          </div>
+          <div class="cast-carousel__body">
+            <button
+              class="carousel-arrow carousel-arrow--left"
+              type="button"
+              (click)="previousCast()"
+              aria-label="Previous cast members"
+            >
+              <span class="material-icons" aria-hidden="true">chevron_left</span>
+            </button>
+            <div class="cast-strip">
+              @for (person of visibleCast(); track person.id) {
+                <article class="cast-card">
+                  <img
+                    [src]="profileUrl(person.profile_path)"
+                    [alt]="person.name"
+                    loading="lazy"
+                    width="185"
+                    height="278"
+                  />
+                  <h3>{{ person.name }}</h3>
+                  @if (person.character) {
+                    <p>{{ person.character }}</p>
+                  }
+                </article>
+              }
             </div>
-          </div>
-          <div class="cast-strip">
-            @for (person of visibleCast(); track person.id) {
-              <article class="cast-card">
-                <img
-                  [src]="profileUrl(person.profile_path)"
-                  [alt]="person.name"
-                  loading="lazy"
-                  width="185"
-                  height="278"
-                />
-                <h3>{{ person.name }}</h3>
-                @if (person.character) {
-                  <p>{{ person.character }}</p>
-                }
-              </article>
-            }
+            <button
+              class="carousel-arrow carousel-arrow--right"
+              type="button"
+              (click)="nextCast()"
+              aria-label="Next cast members"
+            >
+              <span class="material-icons" aria-hidden="true">chevron_right</span>
+            </button>
           </div>
         </section>
       }
 
-      @if (detailsResource.value().videos.length) {
-        <section class="rail" aria-labelledby="videos-title">
+      @if (detailsResource.value().videos.length || detailsResource.value().images.length) {
+        <section class="rail media-tabs" aria-labelledby="media-title">
           <div class="section-heading">
-            <h2 id="videos-title">Videos</h2>
+            <h2 id="media-title">Photos & Videos</h2>
           </div>
-          <div class="video-grid">
-            @for (video of detailsResource.value().videos; track video.id) {
-              <a class="video-card" [href]="youtubeUrl(video)" target="_blank" rel="noopener">
-                <img
-                  [src]="youtubeThumbnail(video)"
-                  [alt]="video.name"
-                  loading="lazy"
-                  width="480"
-                  height="360"
-                />
-                <span>{{ video.name }}</span>
-              </a>
+          <div class="tab-list" role="tablist" aria-label="Photos and videos">
+            <button
+              type="button"
+              role="tab"
+              [class.is-active]="mediaTab() === 'photos'"
+              [attr.aria-selected]="mediaTab() === 'photos'"
+              (click)="mediaTab.set('photos')"
+            >
+              Photos
+            </button>
+            <button
+              type="button"
+              role="tab"
+              [class.is-active]="mediaTab() === 'videos'"
+              [attr.aria-selected]="mediaTab() === 'videos'"
+              (click)="mediaTab.set('videos')"
+            >
+              Videos
+            </button>
+          </div>
+
+          @if (mediaTab() === 'photos') {
+            <div class="image-grid" role="tabpanel">
+              @for (image of visibleImages(); track image.file_path) {
+                <button
+                  type="button"
+                  class="image-card"
+                  (click)="selectedImage.set(imageUrl(image.file_path, 'w780'))"
+                  [attr.aria-label]="'Open image for ' + title()"
+                >
+                  <img
+                    [src]="imageUrl(image.file_path, 'w342')"
+                    alt=""
+                    loading="lazy"
+                    width="342"
+                    height="192"
+                  />
+                </button>
+              }
+            </div>
+            @if (canLoadMoreImages()) {
+              <button type="button" class="load-more-button" (click)="loadMoreImages()">
+                Load more photos
+              </button>
             }
-          </div>
+          } @else {
+            <div class="video-grid" role="tabpanel">
+              @for (video of detailsResource.value().videos; track video.id) {
+                <a class="video-card" [href]="youtubeUrl(video)" target="_blank" rel="noopener">
+                  <img
+                    [src]="youtubeThumbnail(video)"
+                    [alt]="video.name"
+                    loading="lazy"
+                    width="480"
+                    height="360"
+                  />
+                  <span>{{ video.name }}</span>
+                </a>
+              }
+            </div>
+          }
         </section>
       }
 
-      @if (detailsResource.value().images.length) {
-        <section class="rail" aria-labelledby="images-title">
-          <div class="section-heading">
-            <h2 id="images-title">Images</h2>
+      @if (selectedImage()) {
+        <div class="image-viewer" role="dialog" aria-modal="true" aria-label="Selected image">
+          <button
+            type="button"
+            class="image-viewer__scrim"
+            aria-label="Close selected image"
+            (click)="selectedImage.set(null)"
+          ></button>
+          <button type="button" class="image-viewer__close" (click)="selectedImage.set(null)">
+            <span class="material-icons" aria-hidden="true">close</span>
+            <span>Close</span>
+          </button>
+          <button type="button" class="image-viewer__download" (click)="downloadSelectedImage()">
+            <span class="material-icons" aria-hidden="true">download</span>
+            <span>Download</span>
+          </button>
+          <div class="image-viewer__image">
+            <img [src]="selectedImage()" [alt]="title() + ' selected image'" />
           </div>
-          <div class="image-strip">
-            @for (image of detailsResource.value().images; track image.file_path) {
-              <img
-                [src]="imageUrl(image.file_path)"
-                alt=""
-                loading="lazy"
-                width="342"
-                height="192"
-              />
-            }
-          </div>
-        </section>
+        </div>
       }
 
       @if (detailsResource.value().similar.length) {
@@ -241,8 +318,12 @@ interface DetailsRequest {
 })
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly navigationHistory = inject(NavigationHistoryService);
   protected readonly tmdb = inject(TmdbService);
   protected readonly castIndex = signal(0);
+  protected readonly imageVisibleCount = signal(9);
+  protected readonly mediaTab = signal<'photos' | 'videos'>('photos');
+  protected readonly selectedImage = signal<string | null>(null);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -268,6 +349,13 @@ export class DetailsComponent {
     loader: ({ params, abortSignal }) => this.tmdb.getDetails(params.type, params.id, abortSignal),
   });
   protected readonly details = computed<TmdbDetails>(() => this.detailsResource.value().details);
+  protected readonly detailNotFound = computed(
+    () =>
+      this.id() <= 0 ||
+      !!this.detailsResource.error() ||
+      (!this.detailsResource.isLoading() && this.details().id <= 0),
+  );
+  protected readonly canGoBack = computed(() => this.navigationHistory.canGoBack());
   protected readonly title = computed(() => this.tmdb.mediaTitle(this.details()));
   protected readonly mediaLabel = computed(() =>
     this.mediaType() === 'movie' ? 'Movie' : 'Web series / TV serial',
@@ -309,6 +397,10 @@ export class DetailsComponent {
         { label: 'Duration', value: this.runtime() },
         { label: 'Revenue', value: this.tmdb.moneyLabel(details.revenue) },
         { label: 'Languages', value: this.tmdb.languageLabels(details) },
+        { label: 'Original Language', value: this.tmdb.originalLanguageLabel(details) },
+        { label: 'Status', value: details.status || 'Unavailable' },
+        { label: 'Popularity', value: String(Math.round(details.popularity ?? 0)) },
+        { label: 'Votes', value: String(details.vote_count ?? 0) },
         { label: 'Production', value: companies },
         { label: 'IMDb Reference', value: details.imdb_id || 'Unavailable' },
       ];
@@ -320,6 +412,10 @@ export class DetailsComponent {
       { label: 'Genre', value: genreNames },
       { label: 'Duration', value: this.runtime() },
       { label: 'Languages', value: this.tmdb.languageLabels(details) },
+      { label: 'Original Language', value: this.tmdb.originalLanguageLabel(details) },
+      { label: 'Status', value: details.status || 'Unavailable' },
+      { label: 'Popularity', value: String(Math.round(details.popularity ?? 0)) },
+      { label: 'Votes', value: String(details.vote_count ?? 0) },
       {
         label: 'Seasons',
         value: 'number_of_seasons' in details ? String(details.number_of_seasons) : 'Unavailable',
@@ -335,9 +431,30 @@ export class DetailsComponent {
             ? details.networks.map((network) => network.name).join(', ') || 'Unavailable'
             : 'Unavailable',
       },
+      {
+        label: 'Origin Country',
+        value:
+          'origin_country' in details
+            ? details.origin_country.join(', ') || 'Unavailable'
+            : 'Unavailable',
+      },
       { label: 'Production', value: companies },
     ];
   });
+  protected readonly visibleImages = computed(() =>
+    this.detailsResource.value().images.slice(0, this.imageVisibleCount()),
+  );
+  protected readonly canLoadMoreImages = computed(
+    () => this.imageVisibleCount() < this.detailsResource.value().images.length,
+  );
+  protected readonly downloadFileName = computed(
+    () =>
+      `${
+        this.title()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-') || 'arflix-image'
+      }.jpg`,
+  );
   protected readonly visibleCast = computed(() => {
     const cast = this.detailsResource.value().cast;
     const index = this.castIndex();
@@ -353,8 +470,8 @@ export class DetailsComponent {
     return this.tmdb.profileUrl(path);
   }
 
-  protected imageUrl(path: string): string {
-    return this.tmdb.imageUrl(path, 'w342') ?? this.tmdb.posterFallbackImage;
+  protected imageUrl(path: string, size = 'w342'): string {
+    return this.tmdb.imageUrl(path, size) ?? this.tmdb.posterFallbackImage;
   }
 
   protected youtubeThumbnail(video: TmdbVideo): string {
@@ -363,6 +480,35 @@ export class DetailsComponent {
 
   protected youtubeUrl(video: TmdbVideo): string {
     return this.tmdb.youtubeUrl(video);
+  }
+
+  protected loadMoreImages(): void {
+    this.imageVisibleCount.update((count) => count + 9);
+  }
+
+  protected goBack(): void {
+    this.navigationHistory.goBack();
+  }
+
+  protected async downloadSelectedImage(): Promise<void> {
+    const imageUrl = this.selectedImage();
+
+    if (!imageUrl) {
+      return;
+    }
+
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = objectUrl;
+    link.download = this.downloadFileName();
+    link.rel = 'noopener';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
   }
 
   protected nextCast(): void {
