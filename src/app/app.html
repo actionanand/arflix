@@ -1,44 +1,29 @@
-<style>
-  :host {
-    display: block;
-    min-height: 100dvh;
-    color: #17202a;
-    background: #f6f8fb;
-    font-family: Arial, Helvetica, sans-serif;
-  }
+<header class="app-header">
+  <a class="brand" routerLink="/" aria-label="ARFlix home">
+    <span aria-hidden="true">AR</span>
+    <strong>ARFlix</strong>
+  </a>
 
-  main {
-    display: grid;
-    min-height: 100dvh;
-    place-items: center;
-    padding: 2rem;
-    text-align: center;
-  }
+  <nav class="app-nav" aria-label="Primary navigation">
+    <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
+      >Home</a
+    >
+    <a
+      routerLink="/search"
+      [queryParams]="{ q: 'marvel', type: 'movie' }"
+      routerLinkActive="is-active"
+      >Movies</a
+    >
+    <a routerLink="/search" [queryParams]="{ q: 'drama', type: 'tv' }" routerLinkActive="is-active"
+      >TV</a
+    >
+  </nav>
+</header>
 
-  .intro {
-    max-width: 36rem;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: clamp(2rem, 6vw, 4rem);
-    font-weight: 700;
-    line-height: 1.1;
-  }
-
-  p {
-    margin: 1rem 0 0;
-    color: #415164;
-    font-size: 1.125rem;
-    line-height: 1.6;
-  }
-</style>
-
-<main>
-  <section class="intro" aria-labelledby="page-title">
-    <h1 id="page-title">ARFlix</h1>
-    <p>A simple default project template ready to clone and build from.</p>
-  </section>
+<main class="app-main">
+  <router-outlet />
 </main>
 
-<router-outlet />
+<footer class="app-footer">
+  <small>This product uses the TMDb API but is not endorsed or certified by TMDb.</small>
+</footer>
