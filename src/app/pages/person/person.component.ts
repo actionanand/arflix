@@ -79,6 +79,19 @@ interface PersonInfoRow {
           } @else {
             <p class="overview">Biography unavailable.</p>
           }
+
+          @if (imdbUrl()) {
+            <div class="actions">
+              <a
+                class="button-link button-link--secondary"
+                [href]="imdbUrl()"
+                target="_blank"
+                rel="noopener"
+              >
+                IMDb reference
+              </a>
+            </div>
+          }
         </div>
       </article>
 
@@ -139,6 +152,9 @@ export class PersonComponent {
   );
   protected readonly canGoBack = computed(() => this.navigationHistory.canGoBack());
   protected readonly profileUrl = computed(() => this.tmdb.profileUrl(this.person().profile_path));
+  protected readonly imdbUrl = computed(() =>
+    this.person().imdb_id ? `https://www.imdb.com/name/${this.person().imdb_id}` : null,
+  );
   protected readonly infoRows = computed(() =>
     this.availableRows([
       { label: 'Birthday', value: this.person().birthday },

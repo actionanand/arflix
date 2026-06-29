@@ -893,6 +893,7 @@ h3 {
 }
 
 .cast-card {
+  display: block;
   flex: 0 0 8.75rem;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -907,7 +908,10 @@ h3 {
 }
 
 .cast-card img {
+  width: 100%;
+  height: auto;
   aspect-ratio: 2 / 3;
+  object-fit: cover;
 }
 
 .cast-card h3,
