@@ -14,6 +14,14 @@ export const routes: Routes = [
       import('./pages/search/search.component').then((component) => component.SearchComponent),
   },
   {
+    path: 'ar-collection',
+    title: 'AR Collection - ARFlix',
+    loadComponent: () =>
+      import('./pages/ar-collection/ar-collection.component').then(
+        (component) => component.ArCollectionComponent,
+      ),
+  },
+  {
     path: 'movies',
     title: 'Popular Movies - ARFlix',
     data: {
