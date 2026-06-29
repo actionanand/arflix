@@ -18,7 +18,8 @@
     @if (auth.isLoggedIn()) {
       <label class="family-toggle">
         <input type="checkbox" [checked]="auth.familyOnly()" (change)="updateFamilyOnly($event)" />
-        <span>Show Family Content</span>
+        <span class="family-toggle__track" aria-hidden="true"></span>
+        <span>Family</span>
       </label>
       <button type="button" class="nav-button" (click)="auth.logout()">Logout</button>
     } @else {

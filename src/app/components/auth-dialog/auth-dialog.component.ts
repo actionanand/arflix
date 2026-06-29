@@ -40,13 +40,25 @@ import { AuthService } from '../../services/auth.service';
 
             <label>
               Password
-              <input
-                type="password"
-                name="password"
-                autocomplete="current-password"
-                [value]="password()"
-                (input)="updatePassword($event)"
-              />
+              <span class="password-field">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  name="password"
+                  autocomplete="current-password"
+                  [value]="password()"
+                  (input)="updatePassword($event)"
+                />
+                <button
+                  type="button"
+                  class="password-field__toggle"
+                  [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+                  (click)="togglePasswordVisibility()"
+                >
+                  <span class="material-icons" aria-hidden="true">{{
+                    showPassword() ? 'visibility_off' : 'visibility'
+                  }}</span>
+                </button>
+              </span>
             </label>
 
             @if (message()) {
@@ -76,6 +88,7 @@ export class AuthDialogComponent {
   protected readonly messageType = signal<'error' | 'success'>('error');
   protected readonly wobble = signal(false);
   protected readonly isSubmitting = signal(false);
+  protected readonly showPassword = signal(false);
 
   protected updateUserName(event: Event): void {
     const input = event.target as HTMLInputElement | null;
@@ -114,11 +127,16 @@ export class AuthDialogComponent {
     setTimeout(() => this.wobble.set(false), 420);
   }
 
+  protected togglePasswordVisibility(): void {
+    this.showPassword.update((value) => !value);
+  }
+
   protected close(): void {
     this.auth.closeDialog();
     this.message.set('');
     this.messageType.set('error');
     this.wobble.set(false);
     this.isSubmitting.set(false);
+    this.showPassword.set(false);
   }
 }

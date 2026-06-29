@@ -89,7 +89,7 @@ interface CollectionDisplayItem {
             <div class="collection-card__body">
               <div class="collection-sheet">
                 <p class="collection-sheet__meta">
-                  <span>{{ display.entryLabel }}</span>
+                  <span class="collection-sheet__entry">{{ display.entryLabel }}</span>
                   <span>{{ item.sheet.type || 'Title' }}</span>
                 </p>
                 <h2>{{ item.sheet.title }}</h2>
