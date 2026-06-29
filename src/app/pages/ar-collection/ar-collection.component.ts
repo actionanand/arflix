@@ -94,7 +94,7 @@ import { TmdbService } from '../../services/tmdb.service';
                   </div>
                   <div>
                     <dt>Category</dt>
-                    <dd>{{ valueOrUnavailable(item.sheet.category) }}</dd>
+                    <dd>{{ categoryLabel(item.sheet.category) }}</dd>
                   </div>
                   <div>
                     <dt>Adult</dt>
@@ -195,6 +195,10 @@ export class ArCollectionComponent {
     return value || 'Unavailable';
   }
 
+  protected categoryLabel(value: string): string {
+    return value.toLowerCase() === 'normal' ? 'General' : this.valueOrUnavailable(value);
+  }
+
   protected mediaLabel(item: ArCollectionItem): string {
     return item.media?.mediaType === 'movie' ? 'Movie match' : 'TV match';
   }
@@ -223,6 +227,7 @@ export class ArCollectionComponent {
       item.sheet.platform,
       item.sheet.language,
       item.sheet.category,
+      this.categoryLabel(item.sheet.category),
       item.sheet.comment,
     ]
       .join(' ')

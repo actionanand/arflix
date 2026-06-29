@@ -188,6 +188,16 @@ export class TmdbService {
     );
   }
 
+  async getTitleInfoById(
+    type: MediaType,
+    id: number,
+    abortSignal?: AbortSignal,
+  ): Promise<MediaItem | null> {
+    const result = await this.request<TmdbMediaResult>(`/${type}/${id}`, undefined, abortSignal);
+
+    return this.toMediaItem(result, type);
+  }
+
   async getDetails(
     type: MediaType,
     id: number,

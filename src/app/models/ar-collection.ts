@@ -9,6 +9,7 @@ export interface ArCollectionRow {
   category: string;
   isAdult: string;
   comment: string;
+  tmdbId: number | null;
 }
 
 export interface ArCollectionItem {

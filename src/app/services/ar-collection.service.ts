@@ -58,6 +58,14 @@ export class ArCollectionService {
     abortSignal?: AbortSignal,
   ): Promise<ArCollectionItem['media']> {
     try {
+      if (row.tmdbId) {
+        return await this.tmdb.getTitleInfoById(
+          this.typeForTmdbId(row.type),
+          row.tmdbId,
+          abortSignal,
+        );
+      }
+
       return await this.tmdb.findTitleInfo(row.title, this.typeHint(row.type), abortSignal);
     } catch {
       return null;
@@ -85,9 +93,10 @@ export class ArCollectionService {
         type: this.cellText(row, 2),
         platform: this.cellText(row, 3),
         language: this.cellText(row, 4),
-        category: this.cellText(row, 5),
+        category: this.cellText(row, 5) || 'Normal',
         isAdult: this.cellText(row, 6) || 'No',
         comment: this.cellText(row, 7),
+        tmdbId: this.cellNumber(row, 8),
       }))
       .filter((row) => row.title);
   }
@@ -104,6 +113,12 @@ export class ArCollectionService {
     }
 
     return cell.v === undefined || cell.v === null ? '' : String(cell.v).trim();
+  }
+
+  private cellNumber(row: GvizRow, index: number): number | null {
+    const value = Number(this.cellText(row, index).replaceAll(',', ''));
+
+    return Number.isInteger(value) && value > 0 ? value : null;
   }
 
   private isHeaderRow(row: GvizRow): boolean {
@@ -131,5 +146,9 @@ export class ArCollectionService {
     }
 
     return 'all';
+  }
+
+  private typeForTmdbId(type: string): MediaType {
+    return this.typeHint(type) === 'movie' ? 'movie' : 'tv';
   }
 }
