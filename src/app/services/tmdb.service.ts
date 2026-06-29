@@ -19,6 +19,9 @@ import {
   TmdbMovieDetails,
   TmdbMovieReleaseDates,
   TmdbPagedResponse,
+  PersonPageData,
+  TmdbPersonCombinedCredits,
+  TmdbPersonDetails,
   TmdbProvider,
   TmdbProviderResponse,
   TmdbTvContentRatings,
@@ -218,6 +221,26 @@ export class TmdbService {
     };
   }
 
+  async getPerson(id: number, abortSignal?: AbortSignal): Promise<PersonPageData> {
+    const [person, credits] = await Promise.all([
+      this.request<TmdbPersonDetails>(`/person/${id}`, undefined, abortSignal),
+      this.request<TmdbPersonCombinedCredits>(
+        `/person/${id}/combined_credits`,
+        undefined,
+        abortSignal,
+      ),
+    ]);
+
+    if (!person?.id) {
+      throw new Error('TMDb person details unavailable');
+    }
+
+    return {
+      person,
+      credits: this.toKnownCredits(credits.cast),
+    };
+  }
+
   imageUrl(path: string | null | undefined, size = 'w500'): string | null {
     if (!path) {
       return null;
@@ -275,7 +298,7 @@ export class TmdbService {
 
   languageLabels(details: TmdbDetails): string {
     const languages = details.spoken_languages
-      .map((language) => language.english_name || language.name)
+      .map((language) => this.spokenLanguageLabel(language))
       .filter((language) => language.length > 0);
 
     return languages.length ? languages.join(', ') : 'Unavailable';
@@ -283,7 +306,7 @@ export class TmdbService {
 
   audioFeedLabels(details: TmdbDetails): string {
     const feeds = details.spoken_languages
-      .map((language) => language.english_name || language.name)
+      .map((language) => this.spokenLanguageLabel(language))
       .filter((language) => language.length > 0);
 
     return feeds.length ? feeds.join(', ') : 'Unavailable';
@@ -396,6 +419,27 @@ export class TmdbService {
     };
   }
 
+  private toKnownCredits(credits: TmdbPersonCombinedCredits['cast']): MediaItem[] {
+    const seen = new Set<string>();
+
+    return credits
+      .filter((credit) => credit.adult !== true)
+      .map((credit) => this.toMediaItem(credit, 'all'))
+      .filter((item) => item !== null)
+      .sort((first, second) => second.rating - first.rating)
+      .filter((item) => {
+        const key = `${item.mediaType}-${item.id}`;
+
+        if (seen.has(key)) {
+          return false;
+        }
+
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 20);
+  }
+
   private resolveMediaType(
     result: TmdbMediaResult,
     fallbackType: MediaType | 'all',
@@ -421,6 +465,17 @@ export class TmdbService {
     }
 
     return 'all';
+  }
+
+  private spokenLanguageLabel(language: { english_name: string; name: string }): string {
+    const englishName = language.english_name.trim();
+    const nativeName = language.name.trim();
+
+    if (nativeName && englishName && nativeName.toLowerCase() !== englishName.toLowerCase()) {
+      return `${nativeName} (${englishName})`;
+    }
+
+    return nativeName || englishName;
   }
 
   private findTrailerUrl(videos: TmdbVideo[]): string | null {

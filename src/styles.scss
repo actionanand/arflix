@@ -897,7 +897,13 @@ h3 {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  color: var(--text);
   background: var(--surface);
+  text-decoration: none;
+}
+
+.cast-card:hover {
+  border-color: rgba(247, 201, 72, 0.65);
 }
 
 .cast-card img {

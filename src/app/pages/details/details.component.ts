@@ -1,10 +1,11 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
+import { ArDatePipe } from '../../pipes/ar-date.pipe';
 import { NavigationHistoryService } from '../../services/navigation-history.service';
 import { TmdbService } from '../../services/tmdb.service';
 
@@ -42,9 +43,14 @@ interface DetailsRequest {
   type: MediaType;
 }
 
+interface InfoRow {
+  label: string;
+  value: string;
+}
+
 @Component({
   selector: 'app-details-page',
-  imports: [MediaCardComponent, NgOptimizedImage],
+  imports: [ArDatePipe, MediaCardComponent, NgOptimizedImage, RouterLink],
   template: `
     @if (detailNotFound()) {
       <section
@@ -90,8 +96,12 @@ interface DetailsRequest {
           }
 
           <div class="stat-row" aria-label="Title facts">
-            <span>{{ releaseYear() || 'Date unavailable' }}</span>
-            <span>{{ runtime() }}</span>
+            @if (releaseDate()) {
+              <span>{{ releaseDate() | arDate }}</span>
+            }
+            @if (runtimeAvailable()) {
+              <span>{{ runtime() }}</span>
+            }
             <span class="rating-pill"
               ><img ngSrc="assets/images/star.svg" alt="" width="14" height="14" />
               {{ rating() }}</span
@@ -145,7 +155,7 @@ interface DetailsRequest {
           @for (row of infoRows(); track row.label) {
             <div>
               <dt>{{ row.label }}</dt>
-              <dd>{{ row.value }}</dd>
+              <dd>{{ row.value | arDate }}</dd>
             </div>
           }
         </dl>
@@ -183,7 +193,11 @@ interface DetailsRequest {
             </button>
             <div class="cast-strip">
               @for (person of visibleCast(); track person.id) {
-                <article class="cast-card">
+                <a
+                  class="cast-card"
+                  [routerLink]="['/person', person.id]"
+                  [attr.aria-label]="'Open cast profile for ' + person.name"
+                >
                   <img
                     [src]="profileUrl(person.profile_path)"
                     [alt]="person.name"
@@ -195,7 +209,7 @@ interface DetailsRequest {
                   @if (person.character) {
                     <p>{{ person.character }}</p>
                   }
-                </article>
+                </a>
               }
             </div>
             <button
@@ -363,8 +377,9 @@ export class DetailsComponent {
   protected readonly tagline = computed(() => this.details().tagline);
   protected readonly overview = computed(() => this.details().overview ?? '');
   protected readonly genres = computed(() => this.details().genres ?? []);
-  protected readonly releaseYear = computed(() => this.tmdb.mediaDate(this.details()).slice(0, 4));
+  protected readonly releaseDate = computed(() => this.tmdb.mediaDate(this.details()));
   protected readonly runtime = computed(() => this.tmdb.runtimeLabel(this.details()));
+  protected readonly runtimeAvailable = computed(() => !this.isUnavailable(this.runtime()));
   protected readonly rating = computed(() => {
     const rating = this.details().vote_average ?? 0;
     return rating > 0 ? `${rating.toFixed(1)} / 10` : 'Not rated';
@@ -381,16 +396,15 @@ export class DetailsComponent {
   protected readonly imdbUrl = computed(() => this.tmdb.imdbUrl(this.details()));
   protected readonly infoRows = computed(() => {
     const details = this.details();
-    const genreNames = details.genres.map((genre) => genre.name).join(', ') || 'Unavailable';
-    const companies =
-      details.production_companies
-        .map((company) => company.name)
-        .slice(0, 3)
-        .join(', ') || 'Unavailable';
+    const genreNames = details.genres.map((genre) => genre.name).join(', ');
+    const companies = details.production_companies
+      .map((company) => company.name)
+      .slice(0, 3)
+      .join(', ');
 
     if (this.mediaType() === 'movie' && 'budget' in details) {
-      return [
-        { label: 'Release Date', value: this.tmdb.mediaDate(details) || 'Unavailable' },
+      return this.availableRows([
+        { label: 'Release Date', value: this.tmdb.mediaDate(details) },
         { label: 'Audio Feed(s)', value: this.tmdb.audioFeedLabels(details) },
         { label: 'Genre', value: genreNames },
         { label: 'Budget', value: this.tmdb.moneyLabel(details.budget) },
@@ -402,12 +416,12 @@ export class DetailsComponent {
         { label: 'Popularity', value: String(Math.round(details.popularity ?? 0)) },
         { label: 'Votes', value: String(details.vote_count ?? 0) },
         { label: 'Production', value: companies },
-        { label: 'IMDb Reference', value: details.imdb_id || 'Unavailable' },
-      ];
+        { label: 'IMDb Reference', value: details.imdb_id },
+      ]);
     }
 
-    return [
-      { label: 'Release Date', value: this.tmdb.mediaDate(details) || 'Unavailable' },
+    return this.availableRows([
+      { label: 'Release Date', value: this.tmdb.mediaDate(details) },
       { label: 'Audio Feed(s)', value: this.tmdb.audioFeedLabels(details) },
       { label: 'Genre', value: genreNames },
       { label: 'Duration', value: this.runtime() },
@@ -418,28 +432,23 @@ export class DetailsComponent {
       { label: 'Votes', value: String(details.vote_count ?? 0) },
       {
         label: 'Seasons',
-        value: 'number_of_seasons' in details ? String(details.number_of_seasons) : 'Unavailable',
+        value: 'number_of_seasons' in details ? String(details.number_of_seasons) : null,
       },
       {
         label: 'Episodes',
-        value: 'number_of_episodes' in details ? String(details.number_of_episodes) : 'Unavailable',
+        value: 'number_of_episodes' in details ? String(details.number_of_episodes) : null,
       },
       {
         label: 'Network',
         value:
-          'networks' in details
-            ? details.networks.map((network) => network.name).join(', ') || 'Unavailable'
-            : 'Unavailable',
+          'networks' in details ? details.networks.map((network) => network.name).join(', ') : null,
       },
       {
         label: 'Origin Country',
-        value:
-          'origin_country' in details
-            ? details.origin_country.join(', ') || 'Unavailable'
-            : 'Unavailable',
+        value: 'origin_country' in details ? details.origin_country.join(', ') : null,
       },
       { label: 'Production', value: companies },
-    ];
+    ]);
   });
   protected readonly visibleImages = computed(() =>
     this.detailsResource.value().images.slice(0, this.imageVisibleCount()),
@@ -519,5 +528,26 @@ export class DetailsComponent {
   protected previousCast(): void {
     const castCount = this.detailsResource.value().cast.length;
     this.castIndex.update((index) => (castCount ? (index - 1 + castCount) % castCount : 0));
+  }
+
+  private availableRows(rows: { label: string; value: null | string | undefined }[]): InfoRow[] {
+    return rows.flatMap((row) => {
+      const value = this.normalizeInfoValue(row.value);
+      return value ? [{ label: row.label, value }] : [];
+    });
+  }
+
+  private normalizeInfoValue(value: null | string | undefined): string | null {
+    const text = value?.trim() ?? '';
+
+    if (!text || this.isUnavailable(text) || text.toLowerCase() === 'null') {
+      return null;
+    }
+
+    return text;
+  }
+
+  private isUnavailable(value: string): boolean {
+    return value.toLowerCase().includes('unavailable');
   }
 }
