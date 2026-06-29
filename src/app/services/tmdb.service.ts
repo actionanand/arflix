@@ -161,6 +161,30 @@ export class TmdbService {
     };
   }
 
+  async findTitleInfo(
+    title: string,
+    typeHint: MediaType | 'all' = 'all',
+    abortSignal?: AbortSignal,
+  ): Promise<MediaItem | null> {
+    const endpoint = typeHint === 'all' ? '/search/multi' : `/search/${typeHint}`;
+    const response = await this.request<TmdbPagedResponse<TmdbMediaResult>>(
+      endpoint,
+      {
+        query: title,
+        page: 1,
+        include_adult: false,
+      },
+      abortSignal,
+    );
+
+    return (
+      response.results
+        .filter((result) => result.adult !== true)
+        .map((result) => this.toMediaItem(result, typeHint))
+        .filter((item) => item !== null)[0] ?? null
+    );
+  }
+
   async getDetails(
     type: MediaType,
     id: number,
