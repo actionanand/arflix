@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { PersonPageData, TmdbPersonDetails } from '../../models/tmdb';
 import { ArDatePipe } from '../../pipes/ar-date.pipe';
+import { AuthService } from '../../services/auth.service';
 import { NavigationHistoryService } from '../../services/navigation-history.service';
 import { TmdbService } from '../../services/tmdb.service';
 
@@ -27,6 +28,7 @@ const emptyPerson: PersonPageData = {
 };
 
 interface PersonRequest {
+  contentFilter: string;
   id: number;
 }
 
@@ -128,6 +130,7 @@ interface PersonInfoRow {
 })
 export class PersonComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
   private readonly navigationHistory = inject(NavigationHistoryService);
   protected readonly tmdb = inject(TmdbService);
   private readonly paramMap = toSignal(this.route.paramMap, {
@@ -139,7 +142,7 @@ export class PersonComponent {
     defaultValue: emptyPerson,
     params: () => {
       const id = this.id();
-      return id > 0 ? { id } : undefined;
+      return id > 0 ? { contentFilter: this.auth.contentFilterKey(), id } : undefined;
     },
     loader: ({ params, abortSignal }) => this.tmdb.getPerson(params.id, abortSignal),
   });

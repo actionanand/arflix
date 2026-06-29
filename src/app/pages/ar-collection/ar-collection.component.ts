@@ -3,8 +3,14 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { ArCollectionItem } from '../../models/ar-collection';
+import { AuthService } from '../../services/auth.service';
 import { ArCollectionService } from '../../services/ar-collection.service';
 import { TmdbService } from '../../services/tmdb.service';
+
+interface CollectionDisplayItem {
+  entryLabel: string;
+  item: ArCollectionItem;
+}
 
 @Component({
   selector: 'app-ar-collection-page',
@@ -64,7 +70,11 @@ import { TmdbService } from '../../services/tmdb.service';
       }
 
       <section class="collection-grid" aria-label="AR Collection titles">
-        @for (item of filteredItems(); track item.sheet.serialNumber + '-' + item.sheet.title) {
+        @for (
+          display of displayItems();
+          track display.item.sheet.serialNumber + '-' + display.item.sheet.title
+        ) {
+          @let item = display.item;
           <article class="collection-card">
             <div class="collection-card__poster">
               <img
@@ -79,7 +89,7 @@ import { TmdbService } from '../../services/tmdb.service';
             <div class="collection-card__body">
               <div class="collection-sheet">
                 <p class="collection-sheet__meta">
-                  <span>#{{ item.sheet.serialNumber }}</span>
+                  <span>{{ display.entryLabel }}</span>
                   <span>{{ item.sheet.type || 'Title' }}</span>
                 </p>
                 <h2>{{ item.sheet.title }}</h2>
@@ -95,10 +105,6 @@ import { TmdbService } from '../../services/tmdb.service';
                   <div>
                     <dt>Category</dt>
                     <dd>{{ categoryLabel(item.sheet.category) }}</dd>
-                  </div>
-                  <div>
-                    <dt>Adult</dt>
-                    <dd>{{ item.sheet.isAdult || 'No' }}</dd>
                   </div>
                 </dl>
                 @if (item.sheet.comment) {
@@ -143,15 +149,21 @@ export class ArCollectionComponent {
   protected readonly query = signal('');
 
   private readonly collection = inject(ArCollectionService);
+  protected readonly auth = inject(AuthService);
   private readonly tmdb = inject(TmdbService);
 
   protected readonly collectionResource = resource({
     defaultValue: [] as ArCollectionItem[],
     loader: ({ abortSignal }) => this.collection.getCollection(abortSignal),
   });
+  protected readonly visibleItems = computed(() =>
+    this.collectionResource
+      .value()
+      .filter((item) => this.auth.canShowAdult() || !this.isAdultItem(item)),
+  );
   protected readonly filteredItems = computed(() => {
     const query = this.query().trim().toLowerCase();
-    const items = this.collectionResource.value();
+    const items = this.visibleItems();
 
     if (!query) {
       return items;
@@ -159,8 +171,24 @@ export class ArCollectionComponent {
 
     return items.filter((item) => this.searchText(item).includes(query));
   });
+  protected readonly displayItems = computed(() => {
+    let sheetEntry = 2;
+    let adultEntry = 1;
+
+    return this.filteredItems().map((item): CollectionDisplayItem => {
+      if (this.isAdultItem(item)) {
+        const entryLabel = `Adult ${adultEntry} - ${this.typeLabel(item.sheet.type)}`;
+        adultEntry += 1;
+        return { entryLabel, item };
+      }
+
+      const entryLabel = `Google Sheet Entry ${sheetEntry}`;
+      sheetEntry += 1;
+      return { entryLabel, item };
+    });
+  });
   protected readonly summary = computed(() => {
-    const total = this.collectionResource.value().length;
+    const total = this.visibleItems().length;
     const filtered = this.filteredItems().length;
 
     if (this.collectionResource.isLoading()) {
@@ -201,6 +229,20 @@ export class ArCollectionComponent {
 
   protected mediaLabel(item: ArCollectionItem): string {
     return item.media?.mediaType === 'movie' ? 'Movie match' : 'TV match';
+  }
+
+  protected isAdultItem(item: ArCollectionItem): boolean {
+    return this.auth.isAdultValue(item.sheet.isAdult);
+  }
+
+  protected typeLabel(type: string): string {
+    const normalized = type.toLowerCase();
+
+    if (normalized.includes('movie') || normalized.includes('film')) {
+      return 'Movie';
+    }
+
+    return 'Web Series';
   }
 
   protected releaseYear(item: ArCollectionItem): string {

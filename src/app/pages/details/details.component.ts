@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
 import { ArDatePipe } from '../../pipes/ar-date.pipe';
+import { AuthService } from '../../services/auth.service';
 import { NavigationHistoryService } from '../../services/navigation-history.service';
 import { TmdbService } from '../../services/tmdb.service';
 
@@ -39,6 +40,7 @@ const emptyDetails: DetailsPageData = {
 };
 
 interface DetailsRequest {
+  contentFilter: string;
   id: number;
   type: MediaType;
 }
@@ -332,6 +334,7 @@ interface InfoRow {
 })
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
   private readonly navigationHistory = inject(NavigationHistoryService);
   protected readonly tmdb = inject(TmdbService);
   protected readonly castIndex = signal(0);
@@ -355,6 +358,7 @@ export class DetailsComponent {
       const id = this.id();
       return id > 0
         ? {
+            contentFilter: this.auth.contentFilterKey(),
             id,
             type: this.mediaType(),
           }

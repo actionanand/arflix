@@ -13,7 +13,21 @@
     <a routerLink="/search" routerLinkActive="is-active">Search</a>
     <a routerLink="/ar-collection" routerLinkActive="is-active">AR Collection</a>
   </nav>
+
+  <div class="auth-actions">
+    @if (auth.isLoggedIn()) {
+      <label class="family-toggle">
+        <input type="checkbox" [checked]="auth.familyOnly()" (change)="updateFamilyOnly($event)" />
+        <span>Show Family Content</span>
+      </label>
+      <button type="button" class="nav-button" (click)="auth.logout()">Logout</button>
+    } @else {
+      <button type="button" class="nav-button" (click)="auth.openDialog()">Login</button>
+    }
+  </div>
 </header>
+
+<app-auth-dialog />
 
 <main class="app-main">
   <router-outlet />

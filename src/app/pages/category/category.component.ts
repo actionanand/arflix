@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { BrowsePageResult, BrowseRequest, MediaType } from '../../models/tmdb';
+import { AuthService } from '../../services/auth.service';
 import { TmdbService } from '../../services/tmdb.service';
 
 const emptyBrowseResult: BrowsePageResult = {
@@ -80,6 +81,7 @@ export class CategoryComponent {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   private readonly tmdb = inject(TmdbService);
   private readonly routeData = toSignal(this.route.data, {
     initialValue: this.route.snapshot.data,
@@ -108,6 +110,7 @@ export class CategoryComponent {
   protected readonly browseResource = resource<BrowsePageResult, BrowseRequest | undefined>({
     defaultValue: emptyBrowseResult,
     params: () => ({
+      contentFilter: this.auth.contentFilterKey(),
       genreId: this.genreId(),
       page: this.page(),
       type: this.mediaType(),

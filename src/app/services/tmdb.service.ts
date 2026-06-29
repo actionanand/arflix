@@ -1,4 +1,4 @@
-import { Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
 
 import { environment } from '../../environments/environment';
 import {
@@ -27,11 +27,13 @@ import {
   TmdbTvContentRatings,
   TmdbVideo,
 } from '../models/tmdb';
+import { AuthService } from './auth.service';
 
 type QueryValue = string | number | boolean | undefined;
 
 @Service()
 export class TmdbService {
+  private readonly auth = inject(AuthService);
   private readonly baseUrl = environment.tmdbBaseUrl;
   private readonly imageBaseUrl = environment.tmdbImageBaseUrl;
   private readonly apiReadToken = environment.tmdbApiReadToken;
@@ -80,7 +82,7 @@ export class TmdbService {
       const response = await this.request<TmdbPagedResponse<TmdbMediaResult>>(
         endpoint,
         {
-          include_adult: false,
+          include_adult: this.auth.canShowAdult(),
           page: request.page,
         },
         abortSignal,
@@ -89,7 +91,7 @@ export class TmdbService {
       return {
         genreName: request.type === 'movie' ? 'Popular Movies' : 'Popular TV & Web Series',
         items: response.results
-          .filter((result) => result.adult !== true)
+          .filter((result) => this.isVisibleAdultResult(result))
           .map((result) => this.toMediaItem(result, request.type))
           .filter((item) => item !== null),
         totalPages: Math.min(response.total_pages, 500),
@@ -102,7 +104,7 @@ export class TmdbService {
       this.request<TmdbPagedResponse<TmdbMediaResult>>(
         `/discover/${request.type}`,
         {
-          include_adult: false,
+          include_adult: this.auth.canShowAdult(),
           page: request.page,
           sort_by: request.type === 'movie' ? 'popularity.desc' : 'vote_average.desc',
           'vote_count.gte': request.type === 'movie' ? 150 : 50,
@@ -116,7 +118,8 @@ export class TmdbService {
       genreName: genres.find((genre) => genre.id === request.genreId)?.name ?? 'Category',
       items: response.results
         .map((result) => this.toMediaItem(result, request.type))
-        .filter((item) => item !== null),
+        .filter((item) => item !== null)
+        .filter((item) => this.isVisibleMediaItem(item)),
       totalPages: Math.min(response.total_pages, 500),
       totalResults: response.total_results,
     };
@@ -135,7 +138,7 @@ export class TmdbService {
       {
         query: request.query,
         page: request.page,
-        include_adult: false,
+        include_adult: this.auth.canShowAdult(),
         ...yearParam,
       },
       abortSignal,
@@ -143,6 +146,7 @@ export class TmdbService {
     const items = response.results
       .map((result) => this.toMediaItem(result, request.type))
       .filter((item) => item !== null)
+      .filter((item) => this.isVisibleMediaItem(item))
       .filter((item) => !request.year || item.releaseDate.startsWith(request.year))
       .filter((item) => item.rating >= request.minRating)
       .sort((first, second) => {
@@ -175,14 +179,14 @@ export class TmdbService {
       {
         query: title,
         page: 1,
-        include_adult: false,
+        include_adult: this.auth.canShowAdult(),
       },
       abortSignal,
     );
 
     return (
       response.results
-        .filter((result) => result.adult !== true)
+        .filter((result) => this.isVisibleAdultResult(result))
         .map((result) => this.toMediaItem(result, typeHint))
         .filter((item) => item !== null)[0] ?? null
     );
@@ -373,12 +377,16 @@ export class TmdbService {
   ): Promise<MediaItem[]> {
     const response = await this.request<TmdbPagedResponse<TmdbMediaResult>>(
       endpoint,
-      query,
+      {
+        include_adult: this.auth.canShowAdult(),
+        ...query,
+      },
       abortSignal,
     );
     return response.results
       .map((result) => this.toMediaItem(result, this.mediaTypeFromEndpoint(endpoint)))
-      .filter((item) => item !== null);
+      .filter((item) => item !== null)
+      .filter((item) => this.isVisibleMediaItem(item));
   }
 
   private async request<T>(
@@ -417,6 +425,7 @@ export class TmdbService {
     }
 
     return {
+      adult: result.adult === true,
       id: result.id,
       mediaType,
       title: result.title ?? result.name ?? 'Untitled',
@@ -433,9 +442,10 @@ export class TmdbService {
     const seen = new Set<string>();
 
     return credits
-      .filter((credit) => credit.adult !== true)
+      .filter((credit) => this.isVisibleAdultResult(credit))
       .map((credit) => this.toMediaItem(credit, 'all'))
       .filter((item) => item !== null)
+      .filter((item) => this.isVisibleMediaItem(item))
       .sort((first, second) => second.rating - first.rating)
       .filter((item) => {
         const key = `${item.mediaType}-${item.id}`;
@@ -475,6 +485,14 @@ export class TmdbService {
     }
 
     return 'all';
+  }
+
+  private isVisibleAdultResult(result: TmdbMediaResult): boolean {
+    return this.auth.canShowAdult() || result.adult !== true;
+  }
+
+  private isVisibleMediaItem(item: MediaItem): boolean {
+    return this.auth.canShowAdult() || !item.adult;
   }
 
   private spokenLanguageLabel(language: { english_name: string; name: string }): string {

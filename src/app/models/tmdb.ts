@@ -186,6 +186,7 @@ export interface TmdbTvDetails extends TmdbMediaResult {
 export type TmdbDetails = TmdbMovieDetails | TmdbTvDetails;
 
 export interface MediaItem {
+  adult: boolean;
   id: number;
   mediaType: MediaType;
   title: string;
@@ -198,6 +199,7 @@ export interface MediaItem {
 }
 
 export interface SearchRequest {
+  contentFilter: string;
   minRating: number;
   query: string;
   sort: SearchSort;
@@ -243,6 +245,7 @@ export interface PersonPageData {
 }
 
 export interface BrowseRequest {
+  contentFilter: string;
   genreId?: number;
   page: number;
   type: MediaType;
