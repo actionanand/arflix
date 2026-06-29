@@ -2,14 +2,20 @@ import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { ArCollectionItem } from '../../models/ar-collection';
+import { ArCollectionItem, ArCollectionRow } from '../../models/ar-collection';
 import { AuthService } from '../../services/auth.service';
 import { ArCollectionService } from '../../services/ar-collection.service';
 import { TmdbService } from '../../services/tmdb.service';
 
-interface CollectionDisplayItem {
-  entryLabel: string;
-  item: ArCollectionItem;
+interface CollectionDisplayRow {
+  primaryLabel: string;
+  sheetLabel: string | null;
+  row: ArCollectionRow;
+}
+
+interface CollectionPageRequest {
+  contentFilter: string;
+  rows: ArCollectionRow[];
 }
 
 @Component({
@@ -43,18 +49,18 @@ interface CollectionDisplayItem {
       </form>
     </section>
 
-    @if (collectionResource.error()) {
+    @if (sheetResource.error()) {
       <section class="notice" aria-live="polite">
         <h2>Collection unavailable</h2>
         <p>Please check the Google Sheet access and try again.</p>
-        <button type="button" (click)="collectionResource.reload()">Retry</button>
+        <button type="button" (click)="sheetResource.reload()">Retry</button>
       </section>
     } @else {
       <section class="results-summary" aria-live="polite">
         <p>{{ summary() }}</p>
       </section>
 
-      @if (collectionResource.isLoading()) {
+      @if (sheetResource.isLoading()) {
         <section class="loading-grid" aria-label="Loading AR Collection">
           @for (item of skeletonItems; track item) {
             <div class="skeleton-card"></div>
@@ -62,7 +68,7 @@ interface CollectionDisplayItem {
         </section>
       }
 
-      @if (!collectionResource.isLoading() && filteredItems().length === 0) {
+      @if (!sheetResource.isLoading() && filteredRows().length === 0) {
         <section class="empty-state">
           <h2>No collection match</h2>
           <p>Try a title, platform, language, category, type, or comment from the sheet.</p>
@@ -71,10 +77,10 @@ interface CollectionDisplayItem {
 
       <section class="collection-grid" aria-label="AR Collection titles">
         @for (
-          display of displayItems();
-          track display.item.sheet.serialNumber + '-' + display.item.sheet.title
+          display of pagedDisplayRows();
+          track display.row.serialNumber + '-' + display.row.title
         ) {
-          @let item = display.item;
+          @let item = itemFor(display.row);
           <article class="collection-card">
             <div class="collection-card__poster">
               <img
@@ -89,8 +95,15 @@ interface CollectionDisplayItem {
             <div class="collection-card__body">
               <div class="collection-sheet">
                 <p class="collection-sheet__meta">
-                  <span class="collection-sheet__entry">{{ display.entryLabel }}</span>
-                  <span>{{ item.sheet.type || 'Title' }}</span>
+                  <span class="collection-sheet__entry-row">
+                    <span class="collection-sheet__entry">{{ display.primaryLabel }}</span>
+                    <span>{{ item.sheet.type || 'Title' }}</span>
+                  </span>
+                  @if (display.sheetLabel) {
+                    <span class="collection-sheet__entry collection-sheet__entry--sheet"
+                      >({{ display.sheetLabel }})</span
+                    >
+                  }
                 </p>
                 <h2>{{ item.sheet.title }}</h2>
                 <dl class="collection-facts">
@@ -133,65 +146,136 @@ interface CollectionDisplayItem {
                 </div>
               } @else {
                 <div class="collection-tmdb">
-                  <p class="collection-only">Sheet-only entry</p>
-                  <p class="collection-overview">No matching TMDb poster or details were found.</p>
+                  @if (pageResource.isLoading()) {
+                    <p class="collection-only">Fetching title details</p>
+                    <p class="collection-overview">Poster and rating are loading for this page.</p>
+                  } @else {
+                    <p class="collection-only">Sheet-only entry</p>
+                    <p class="collection-overview">
+                      No matching TMDb poster or details were found.
+                    </p>
+                  }
                 </div>
               }
             </div>
           </article>
         }
       </section>
+
+      @if (totalPages() > 1) {
+        <nav class="pager pager--modern" aria-label="AR Collection pages">
+          <button type="button" [disabled]="safePage() <= 1" (click)="goToPage(safePage() - 1)">
+            Previous
+          </button>
+          <div class="page-number-list">
+            @for (pageNumber of pageNumbers(); track pageNumber) {
+              <button
+                type="button"
+                [class.is-active]="pageNumber === safePage()"
+                [attr.aria-current]="pageNumber === safePage() ? 'page' : null"
+                (click)="goToPage(pageNumber)"
+              >
+                {{ pageNumber }}
+              </button>
+            }
+          </div>
+          <button
+            type="button"
+            [disabled]="safePage() >= totalPages()"
+            (click)="goToPage(safePage() + 1)"
+          >
+            Next
+          </button>
+        </nav>
+      }
     }
   `,
 })
 export class ArCollectionComponent {
+  private readonly pageSize = 15;
   protected readonly skeletonItems = [1, 2, 3, 4, 5, 6];
   protected readonly query = signal('');
+  protected readonly page = signal(1);
 
   private readonly collection = inject(ArCollectionService);
   protected readonly auth = inject(AuthService);
   private readonly tmdb = inject(TmdbService);
 
-  protected readonly collectionResource = resource({
-    defaultValue: [] as ArCollectionItem[],
-    loader: ({ abortSignal }) => this.collection.getCollection(abortSignal),
+  protected readonly sheetResource = resource({
+    defaultValue: [] as ArCollectionRow[],
+    loader: ({ abortSignal }) => this.collection.getSheetRows(abortSignal),
   });
-  protected readonly visibleItems = computed(() =>
-    this.collectionResource
-      .value()
-      .filter((item) => this.auth.canShowAdult() || !this.isAdultItem(item)),
+  protected readonly visibleRows = computed(() =>
+    this.sheetResource.value().filter((row) => this.auth.canShowAdult() || !this.isAdultRow(row)),
   );
-  protected readonly filteredItems = computed(() => {
-    const query = this.query().trim().toLowerCase();
-    const items = this.visibleItems();
-
-    if (!query) {
-      return items;
-    }
-
-    return items.filter((item) => this.searchText(item).includes(query));
-  });
-  protected readonly displayItems = computed(() => {
-    let sheetEntry = 2;
+  protected readonly displayRows = computed(() => {
+    let visibleEntry = 1;
     let adultEntry = 1;
 
-    return this.filteredItems().map((item): CollectionDisplayItem => {
-      if (this.isAdultItem(item)) {
-        const entryLabel = `Adult ${adultEntry} - ${this.typeLabel(item.sheet.type)}`;
+    return this.visibleRows().map((row): CollectionDisplayRow => {
+      if (this.isAdultRow(row)) {
+        const primaryLabel = `Adult ${adultEntry}`;
         adultEntry += 1;
-        return { entryLabel, item };
+        return {
+          primaryLabel,
+          row,
+          sheetLabel: this.auth.isLoggedIn() ? `Google Sheet Entry ${row.sheetRowNumber}` : null,
+        };
       }
 
-      const entryLabel = `Google Sheet Entry ${sheetEntry}`;
-      sheetEntry += 1;
-      return { entryLabel, item };
+      const primaryLabel = `#${visibleEntry}`;
+      visibleEntry += 1;
+
+      return {
+        primaryLabel,
+        row,
+        sheetLabel: this.auth.isLoggedIn() ? `Google Sheet Entry ${row.sheetRowNumber}` : null,
+      };
     });
   });
-  protected readonly summary = computed(() => {
-    const total = this.visibleItems().length;
-    const filtered = this.filteredItems().length;
+  protected readonly filteredRows = computed(() => {
+    const query = this.query().trim().toLowerCase();
+    const rows = this.displayRows();
 
-    if (this.collectionResource.isLoading()) {
+    if (!query) {
+      return rows;
+    }
+
+    return rows.filter((display) => this.searchText(display.row).includes(query));
+  });
+  protected readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredRows().length / this.pageSize)),
+  );
+  protected readonly safePage = computed(() => Math.min(this.page(), this.totalPages()));
+  protected readonly pagedDisplayRows = computed(() => {
+    const start = (this.safePage() - 1) * this.pageSize;
+    return this.filteredRows().slice(start, start + this.pageSize);
+  });
+  protected readonly pageResource = resource<ArCollectionItem[], CollectionPageRequest>({
+    defaultValue: [],
+    params: () => ({
+      contentFilter: this.auth.contentFilterKey(),
+      rows: this.pagedDisplayRows().map((display) => display.row),
+    }),
+    loader: ({ params, abortSignal }) => this.collection.getMediaForRows(params.rows, abortSignal),
+  });
+  protected readonly mediaByRowKey = computed(() => {
+    const mediaMap = new Map<string, ArCollectionItem>();
+
+    this.pageResource.value().forEach((item) => {
+      mediaMap.set(this.rowKey(item.sheet), item);
+    });
+
+    return mediaMap;
+  });
+  protected readonly pageNumbers = computed(() =>
+    this.visiblePageNumbers(this.safePage(), this.totalPages()),
+  );
+  protected readonly summary = computed(() => {
+    const total = this.visibleRows().length;
+    const filtered = this.filteredRows().length;
+
+    if (this.sheetResource.isLoading()) {
       return 'Loading your collection';
     }
 
@@ -205,10 +289,24 @@ export class ArCollectionComponent {
   protected updateQuery(event: Event): void {
     const input = event.target as HTMLInputElement | null;
     this.query.set(input?.value ?? '');
+    this.page.set(1);
   }
 
   protected preventSubmit(event: Event): void {
     event.preventDefault();
+  }
+
+  protected goToPage(page: number): void {
+    this.page.set(Math.min(Math.max(page, 1), this.totalPages()));
+  }
+
+  protected itemFor(row: ArCollectionRow): ArCollectionItem {
+    return (
+      this.mediaByRowKey().get(this.rowKey(row)) ?? {
+        sheet: row,
+        media: null,
+      }
+    );
   }
 
   protected posterUrl(item: ArCollectionItem): string {
@@ -232,7 +330,11 @@ export class ArCollectionComponent {
   }
 
   protected isAdultItem(item: ArCollectionItem): boolean {
-    return this.auth.isAdultValue(item.sheet.isAdult);
+    return this.isAdultRow(item.sheet);
+  }
+
+  protected isAdultRow(row: ArCollectionRow): boolean {
+    return this.auth.isAdultValue(row.isAdult);
   }
 
   protected typeLabel(type: string): string {
@@ -262,17 +364,30 @@ export class ArCollectionComponent {
     return [`/${item.media.mediaType === 'movie' ? 'movie' : 'tv-show'}`, String(item.media.id)];
   }
 
-  private searchText(item: ArCollectionItem): string {
+  private rowKey(row: ArCollectionRow): string {
+    return `${row.serialNumber}-${row.title}`;
+  }
+
+  private searchText(row: ArCollectionRow): string {
     return [
-      item.sheet.title,
-      item.sheet.type,
-      item.sheet.platform,
-      item.sheet.language,
-      item.sheet.category,
-      this.categoryLabel(item.sheet.category),
-      item.sheet.comment,
+      row.title,
+      row.type,
+      row.platform,
+      row.language,
+      row.category,
+      this.categoryLabel(row.category),
+      row.comment,
     ]
       .join(' ')
       .toLowerCase();
+  }
+
+  private visiblePageNumbers(currentPage: number, totalPages: number): number[] {
+    const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+    const count = Math.min(5, totalPages);
+
+    return Array.from({ length: count }, (_, index) => start + index).filter(
+      (page) => page <= totalPages,
+    );
   }
 }

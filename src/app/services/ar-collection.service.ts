@@ -26,9 +26,10 @@ export class ArCollectionService {
   private readonly sheetId = environment.GOOGLE_SHEET_ID;
   private readonly sheetGid = environment.SHEET_GID;
 
-  async getCollection(abortSignal?: AbortSignal): Promise<ArCollectionItem[]> {
-    const rows = await this.getSheetRows(abortSignal);
-
+  async getMediaForRows(
+    rows: ArCollectionRow[],
+    abortSignal?: AbortSignal,
+  ): Promise<ArCollectionItem[]> {
     return Promise.all(
       rows.map(async (row) => ({
         sheet: row,
@@ -37,7 +38,7 @@ export class ArCollectionService {
     );
   }
 
-  private async getSheetRows(abortSignal?: AbortSignal): Promise<ArCollectionRow[]> {
+  async getSheetRows(abortSignal?: AbortSignal): Promise<ArCollectionRow[]> {
     const url = new URL(`https://docs.google.com/spreadsheets/d/${this.sheetId}/gviz/tq`);
     url.searchParams.set('tqx', 'out:json');
     url.searchParams.set('gid', String(this.sheetGid));
@@ -85,18 +86,23 @@ export class ArCollectionService {
 
   private toCollectionRows(response: GvizResponse): ArCollectionRow[] {
     return (response.table?.rows ?? [])
-      .filter((row) => this.cellText(row, 0))
-      .filter((row) => !this.isHeaderRow(row))
-      .map((row) => ({
-        serialNumber: this.cellText(row, 0),
-        title: this.cellText(row, 1),
-        type: this.cellText(row, 2),
-        platform: this.cellText(row, 3),
-        language: this.cellText(row, 4),
-        category: this.cellText(row, 5) || 'Normal',
-        isAdult: this.cellText(row, 6) || 'No',
-        comment: this.cellText(row, 7),
-        tmdbId: this.cellNumber(row, 8),
+      .map((row, index) => ({
+        row,
+        sheetRowNumber: index + 1,
+      }))
+      .filter((entry) => this.cellText(entry.row, 0))
+      .filter((entry) => !this.isHeaderRow(entry.row))
+      .map((entry) => ({
+        serialNumber: this.cellText(entry.row, 0),
+        sheetRowNumber: entry.sheetRowNumber,
+        title: this.cellText(entry.row, 1),
+        type: this.cellText(entry.row, 2),
+        platform: this.cellText(entry.row, 3),
+        language: this.cellText(entry.row, 4),
+        category: this.cellText(entry.row, 5) || 'Normal',
+        isAdult: this.cellText(entry.row, 6) || 'No',
+        comment: this.cellText(entry.row, 7),
+        tmdbId: this.cellNumber(entry.row, 8),
       }))
       .filter((row) => row.title);
   }

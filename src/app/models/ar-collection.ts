@@ -2,6 +2,7 @@ import { MediaItem } from './tmdb';
 
 export interface ArCollectionRow {
   serialNumber: string;
+  sheetRowNumber: number;
   title: string;
   type: string;
   platform: string;
