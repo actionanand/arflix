@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FeatureCarouselComponent } from '../../components/feature-carousel/feature-carousel.component';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { HomeSections } from '../../models/tmdb';
+import { AuthService } from '../../services/auth.service';
 import { TmdbService } from '../../services/tmdb.service';
 
 const emptyHomeSections: HomeSections = {
@@ -116,10 +117,12 @@ export class HomeComponent {
   protected readonly skeletonItems = [1, 2, 3, 4, 5, 6];
 
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   private readonly tmdb = inject(TmdbService);
 
-  protected readonly homeResource = resource({
+  protected readonly homeResource = resource<HomeSections, string>({
     defaultValue: emptyHomeSections,
+    params: () => this.auth.contentFilterKey(),
     loader: ({ abortSignal }) => this.tmdb.getHomeSections(abortSignal),
   });
 

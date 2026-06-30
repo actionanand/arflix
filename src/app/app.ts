@@ -1,14 +1,31 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { AuthDialogComponent } from './components/auth-dialog/auth-dialog.component';
+import { AuthService } from './services/auth.service';
 import { NavigationHistoryService } from './services/navigation-history.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [AuthDialogComponent, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
   private readonly navigationHistory = inject(NavigationHistoryService);
+  protected readonly auth = inject(AuthService);
+  protected readonly menuOpen = signal(false);
+
+  protected updateFamilyOnly(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.auth.setFamilyOnly(input?.checked ?? false);
+  }
+
+  protected toggleMenu(): void {
+    this.menuOpen.update((open) => !open);
+  }
+
+  protected closeMenu(): void {
+    this.menuOpen.set(false);
+  }
 }

@@ -1,19 +1,61 @@
 <header class="app-header">
-  <a class="brand" routerLink="/" aria-label="ARFlix home">
+  <a class="brand" routerLink="/" aria-label="ARFlix home" (click)="closeMenu()">
     <img src="ar_flix.png" alt="" width="42" height="42" />
     <strong>ARFlix</strong>
   </a>
 
-  <nav class="app-nav" aria-label="Primary navigation">
-    <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
-      >Home</a
-    >
-    <a routerLink="/movies" routerLinkActive="is-active">Movies</a>
-    <a routerLink="/tv-shows" routerLinkActive="is-active">TV</a>
-    <a routerLink="/search" routerLinkActive="is-active">Search</a>
-    <a routerLink="/ar-collection" routerLinkActive="is-active">AR Collection</a>
-  </nav>
+  <button
+    type="button"
+    class="menu-button"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="primary-menu"
+    aria-label="Toggle navigation menu"
+    (click)="toggleMenu()"
+  >
+    <span class="material-icons" aria-hidden="true">{{ menuOpen() ? 'close' : 'menu' }}</span>
+  </button>
+
+  <div id="primary-menu" class="app-menu" [class.is-open]="menuOpen()">
+    <nav class="app-nav" aria-label="Primary navigation">
+      <a
+        routerLink="/"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="closeMenu()"
+        >Home</a
+      >
+      <a routerLink="/movies" routerLinkActive="is-active" (click)="closeMenu()">Movies</a>
+      <a routerLink="/tv-shows" routerLinkActive="is-active" (click)="closeMenu()">TV</a>
+      <a routerLink="/search" routerLinkActive="is-active" (click)="closeMenu()">Search</a>
+      <a routerLink="/ar-collection" routerLinkActive="is-active" (click)="closeMenu()"
+        >AR Collection</a
+      >
+    </nav>
+
+    <div class="auth-actions">
+      @if (auth.isLoggedIn()) {
+        <label class="family-toggle">
+          <input
+            type="checkbox"
+            [checked]="auth.familyOnly()"
+            (change)="updateFamilyOnly($event)"
+          />
+          <span class="family-toggle__track" aria-hidden="true"></span>
+          <span>Family</span>
+        </label>
+        <button type="button" class="nav-button" (click)="auth.logout(); closeMenu()">
+          Logout
+        </button>
+      } @else {
+        <button type="button" class="nav-button" (click)="auth.openDialog(); closeMenu()">
+          Login
+        </button>
+      }
+    </div>
+  </div>
 </header>
+
+<app-auth-dialog />
 
 <main class="app-main">
   <router-outlet />
@@ -21,4 +63,12 @@
 
 <footer class="app-footer">
   <small>This product uses the TMDb API but is not endorsed or certified by TMDb.</small>
+  <a
+    class="legacy-link"
+    href="https://actionanand.github.io/ar-flix/"
+    target="_blank"
+    rel="noopener"
+  >
+    View legacy AR-Flix
+  </a>
 </footer>
