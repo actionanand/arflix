@@ -70,6 +70,12 @@ export const routes: Routes = [
       import('./pages/details/details.component').then((component) => component.DetailsComponent),
   },
   {
+    path: 'person/:id',
+    title: 'Cast Profile - ARFlix',
+    loadComponent: () =>
+      import('./pages/person/person.component').then((component) => component.PersonComponent),
+  },
+  {
     path: 'tv/:id',
     redirectTo: '/tv-show/:id',
   },

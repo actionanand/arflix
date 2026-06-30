@@ -10,6 +10,7 @@ import {
   SearchSort,
   SearchType,
 } from '../../models/tmdb';
+import { AuthService } from '../../services/auth.service';
 import { TmdbService } from '../../services/tmdb.service';
 
 const emptyBrowseCategories: BrowseCategories = {
@@ -208,6 +209,7 @@ export class SearchComponent {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   private readonly tmdb = inject(TmdbService);
   private searchTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly queryParams = toSignal(this.route.queryParamMap, {
@@ -235,6 +237,7 @@ export class SearchComponent {
 
       return query
         ? {
+            contentFilter: this.auth.contentFilterKey(),
             query,
             minRating: this.minRating(),
             sort: this.sort(),

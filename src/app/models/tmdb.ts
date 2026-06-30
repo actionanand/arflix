@@ -49,6 +49,33 @@ export interface TmdbMediaResult {
   genre_ids?: number[];
 }
 
+export interface TmdbPersonDetails {
+  also_known_as: string[];
+  biography: string;
+  birthday: string | null;
+  deathday: string | null;
+  homepage: string | null;
+  id: number;
+  imdb_id: string | null;
+  known_for_department: string;
+  name: string;
+  place_of_birth: string | null;
+  popularity: number;
+  profile_path: string | null;
+}
+
+export interface TmdbPersonCredit extends TmdbMediaResult {
+  character?: string;
+  credit_id: string;
+  job?: string;
+  order?: number;
+}
+
+export interface TmdbPersonCombinedCredits {
+  cast: TmdbPersonCredit[];
+  crew: TmdbPersonCredit[];
+}
+
 export interface TmdbPagedResponse<T> {
   page: number;
   results: T[];
@@ -159,6 +186,7 @@ export interface TmdbTvDetails extends TmdbMediaResult {
 export type TmdbDetails = TmdbMovieDetails | TmdbTvDetails;
 
 export interface MediaItem {
+  adult: boolean;
   id: number;
   mediaType: MediaType;
   title: string;
@@ -171,6 +199,7 @@ export interface MediaItem {
 }
 
 export interface SearchRequest {
+  contentFilter: string;
   minRating: number;
   query: string;
   sort: SearchSort;
@@ -210,7 +239,13 @@ export interface DetailsPageData {
   watchProviders: TmdbProvider[];
 }
 
+export interface PersonPageData {
+  credits: MediaItem[];
+  person: TmdbPersonDetails;
+}
+
 export interface BrowseRequest {
+  contentFilter: string;
   genreId?: number;
   page: number;
   type: MediaType;

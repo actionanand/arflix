@@ -2,6 +2,7 @@ import { MediaItem } from './tmdb';
 
 export interface ArCollectionRow {
   serialNumber: string;
+  sheetRowNumber: number;
   title: string;
   type: string;
   platform: string;
@@ -9,6 +10,7 @@ export interface ArCollectionRow {
   category: string;
   isAdult: string;
   comment: string;
+  tmdbId: number | null;
 }
 
 export interface ArCollectionItem {
