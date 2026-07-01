@@ -1477,11 +1477,17 @@ h3 {
 }
 
 .image-viewer__close {
+  z-index: 3;
   right: 1rem;
 }
 
 .image-viewer__download {
   left: 1rem;
+}
+
+.image-viewer__download:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 .not-found {

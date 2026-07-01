@@ -14,6 +14,7 @@
     "android:version:patch": "node scripts/bump-android-version.js --patch",
     "android:version:minor": "node scripts/bump-android-version.js --minor",
     "android:version:major": "node scripts/bump-android-version.js --major",
+    "android:patch-shell": "node scripts/patch-android-shell.mjs",
     "generate-keystore": "node scripts/generate-keystore.mjs",
     "keystore:type": "node scripts/detect-keystore-format.mjs release-keystore.jks",
     "precommit:dummy": "echo 'This is a dummy print message!'",
