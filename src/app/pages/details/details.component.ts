@@ -3,6 +3,7 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
+import { environment } from '../../../environments/environment';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
@@ -49,6 +50,11 @@ interface DetailsRequest {
 interface InfoRow {
   label: string;
   value: string;
+}
+
+interface AndroidImageSaver {
+  saveImage?: (dataUrl: string, fileName: string) => boolean;
+  saveImageFromUrl?: (imageUrl: string, fileName: string) => boolean;
 }
 
 @Component({
@@ -304,15 +310,20 @@ interface InfoRow {
             type="button"
             class="image-viewer__scrim"
             aria-label="Close selected image"
-            (click)="selectedImage.set(null)"
+            (click)="closeSelectedImage()"
           ></button>
-          <button type="button" class="image-viewer__close" (click)="selectedImage.set(null)">
+          <button type="button" class="image-viewer__close" (click)="closeSelectedImage()">
             <span class="material-icons" aria-hidden="true">close</span>
             <span>Close</span>
           </button>
-          <button type="button" class="image-viewer__download" (click)="downloadSelectedImage()">
+          <button
+            type="button"
+            class="image-viewer__download"
+            [disabled]="isDownloadingImage()"
+            (click)="downloadSelectedImage()"
+          >
             <span class="material-icons" aria-hidden="true">download</span>
-            <span>Download</span>
+            <span>{{ isDownloadingImage() ? 'Saving' : 'Download' }}</span>
           </button>
           <div class="image-viewer__image">
             <img [src]="selectedImage()" [alt]="title() + ' selected image'" />
@@ -339,11 +350,13 @@ export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly navigationHistory = inject(NavigationHistoryService);
+  private readonly imageDownloadProxyBaseUrl = environment.imageDownloadProxyBaseUrl;
   protected readonly tmdb = inject(TmdbService);
   protected readonly castIndex = signal(0);
   protected readonly imageVisibleCount = signal(9);
   protected readonly mediaTab = signal<'photos' | 'videos'>('photos');
   protected readonly selectedImage = signal<string | null>(null);
+  protected readonly isDownloadingImage = signal(false);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -509,15 +522,86 @@ export class DetailsComponent {
     this.navigationHistory.goBack();
   }
 
+  protected closeSelectedImage(): void {
+    this.selectedImage.set(null);
+  }
+
   protected async downloadSelectedImage(): Promise<void> {
     const imageUrl = this.selectedImage();
 
-    if (!imageUrl) {
+    if (!imageUrl || this.isDownloadingImage()) {
       return;
     }
 
+    this.isDownloadingImage.set(true);
+
+    try {
+      if (this.saveImageUrlOnAndroid(imageUrl)) {
+        return;
+      }
+
+      const blob = await this.fetchDownloadBlob(imageUrl);
+
+      this.downloadBlob(blob);
+    } catch (error) {
+      console.error('Image download failed', error);
+    } finally {
+      this.isDownloadingImage.set(false);
+    }
+  }
+
+  private async fetchImageBlob(imageUrl: string): Promise<Blob> {
     const response = await fetch(imageUrl);
-    const blob = await response.blob();
+
+    if (!response.ok) {
+      throw new Error(`Image download failed with status ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  private async fetchDownloadBlob(imageUrl: string): Promise<Blob> {
+    try {
+      return await this.fetchImageBlob(imageUrl);
+    } catch (directError) {
+      const proxyUrl = this.proxyImageUrl(imageUrl);
+
+      if (!proxyUrl) {
+        throw directError;
+      }
+
+      return this.fetchImageBlob(proxyUrl);
+    }
+  }
+
+  private saveImageUrlOnAndroid(imageUrl: string): boolean {
+    const androidSaver = (globalThis as typeof globalThis & { ARFlixAndroid?: AndroidImageSaver })
+      .ARFlixAndroid;
+
+    if (!androidSaver?.saveImageFromUrl) {
+      return false;
+    }
+
+    try {
+      return androidSaver.saveImageFromUrl(imageUrl, this.downloadFileName());
+    } catch {
+      return false;
+    }
+  }
+
+  private proxyImageUrl(imageUrl: string): string | null {
+    if (!this.isTmdbImageUrl(imageUrl) || !this.imageDownloadProxyBaseUrl) {
+      return null;
+    }
+
+    return `${this.imageDownloadProxyBaseUrl}${encodeURIComponent(imageUrl)}`;
+  }
+
+  private isTmdbImageUrl(imageUrl: string | null): boolean {
+    return imageUrl?.startsWith('https://image.tmdb.org/') === true;
+  }
+
+  private downloadBlob(blob: Blob): void {
     const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
 
