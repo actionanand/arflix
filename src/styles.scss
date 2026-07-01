@@ -276,7 +276,8 @@ input:focus-visible {
 }
 
 .auth-dialog--wobble {
-  animation: auth-wobble 0.38s ease-in-out;
+  animation: auth-wobble 0.52s ease-in-out;
+  will-change: transform;
 }
 
 .auth-dialog__close {
@@ -388,19 +389,19 @@ input:focus-visible {
   }
 
   20% {
-    transform: translateX(-0.65rem);
+    transform: translateX(-0.9rem);
   }
 
   40% {
-    transform: translateX(0.55rem);
+    transform: translateX(0.75rem);
   }
 
   60% {
-    transform: translateX(-0.35rem);
+    transform: translateX(-0.55rem);
   }
 
   80% {
-    transform: translateX(0.2rem);
+    transform: translateX(0.32rem);
   }
 }
 
@@ -844,6 +845,39 @@ h3 {
 .collection-only {
   color: var(--accent);
   font-weight: 900;
+}
+
+.collection-filter-panel {
+  margin-top: 1rem;
+}
+
+.collection-filter-panel h2 {
+  font-size: 1rem;
+}
+
+.collection-type-filter {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  overflow-x: auto;
+}
+
+.collection-type-filter button {
+  flex: 0 0 auto;
+  min-height: 2.5rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.collection-type-filter button.is-active {
+  color: #111;
+  border-color: var(--accent);
+  background: var(--accent);
 }
 
 .feature-carousel {

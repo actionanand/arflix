@@ -1,11 +1,14 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import { Component, computed, effect, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { environment } from '../../../environments/environment';
 import { ArCollectionItem, ArCollectionRow } from '../../models/ar-collection';
 import { AuthService } from '../../services/auth.service';
 import { ArCollectionService } from '../../services/ar-collection.service';
 import { TmdbService } from '../../services/tmdb.service';
+
+type CollectionContentFilter = 'adult' | 'all' | 'movie' | 'tv';
 
 interface CollectionDisplayRow {
   primaryLabel: string;
@@ -47,6 +50,78 @@ interface CollectionPageRequest {
           />
         </div>
       </form>
+
+      <section class="collection-filter-panel" aria-labelledby="collection-filters-title">
+        <h2 id="collection-filters-title">Collection filters</h2>
+        <div class="collection-type-filter" role="group" aria-label="Content type">
+          <button
+            type="button"
+            [class.is-active]="contentFilter() === 'all'"
+            [attr.aria-pressed]="contentFilter() === 'all'"
+            (click)="updateContentFilter('all')"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            [class.is-active]="contentFilter() === 'tv'"
+            [attr.aria-pressed]="contentFilter() === 'tv'"
+            (click)="updateContentFilter('tv')"
+          >
+            Web Series
+          </button>
+          <button
+            type="button"
+            [class.is-active]="contentFilter() === 'movie'"
+            [attr.aria-pressed]="contentFilter() === 'movie'"
+            (click)="updateContentFilter('movie')"
+          >
+            Movies
+          </button>
+          @if (canUseAdultFilter()) {
+            <button
+              type="button"
+              [class.is-active]="contentFilter() === 'adult'"
+              [attr.aria-pressed]="contentFilter() === 'adult'"
+              (click)="updateContentFilter('adult')"
+            >
+              Only Adult
+            </button>
+          }
+        </div>
+
+        <div class="filter-grid">
+          <label>
+            Language
+            <select [value]="languageFilter()" (change)="updateLanguageFilter(selectValue($event))">
+              <option value="all">All languages</option>
+              @for (language of languageOptions(); track language) {
+                <option [value]="language">{{ language }}</option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Category
+            <select [value]="categoryFilter()" (change)="updateCategoryFilter(selectValue($event))">
+              <option value="all">All categories</option>
+              @for (category of categoryOptions(); track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Platform
+            <select [value]="platformFilter()" (change)="updatePlatformFilter(selectValue($event))">
+              <option value="all">All platforms</option>
+              @for (platform of platformOptions(); track platform) {
+                <option [value]="platform">{{ platform }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </section>
     </section>
 
     @if (sheetResource.error()) {
@@ -193,10 +268,14 @@ interface CollectionPageRequest {
   `,
 })
 export class ArCollectionComponent {
-  private readonly pageSize = 15;
+  private readonly pageSize = environment.arCollectionPageSize;
   protected readonly skeletonItems = [1, 2, 3, 4, 5, 6];
   protected readonly query = signal('');
   protected readonly page = signal(1);
+  protected readonly contentFilter = signal<CollectionContentFilter>('all');
+  protected readonly languageFilter = signal('all');
+  protected readonly categoryFilter = signal('all');
+  protected readonly platformFilter = signal('all');
 
   private readonly collection = inject(ArCollectionService);
   protected readonly auth = inject(AuthService);
@@ -209,6 +288,24 @@ export class ArCollectionComponent {
   protected readonly visibleRows = computed(() =>
     this.sheetResource.value().filter((row) => this.auth.canShowAdult() || !this.isAdultRow(row)),
   );
+  protected readonly languageOptions = computed(() =>
+    this.uniqueOptions(this.visibleRows().map((row) => row.language)),
+  );
+  protected readonly categoryOptions = computed(() =>
+    this.uniqueOptions(this.visibleRows().map((row) => this.categoryLabel(row.category))),
+  );
+  protected readonly platformOptions = computed(() =>
+    this.uniqueOptions(this.visibleRows().map((row) => row.platform)),
+  );
+  protected readonly canUseAdultFilter = computed(
+    () => this.auth.isLoggedIn() && !this.auth.familyOnly(),
+  );
+  private readonly resetHiddenAdultFilter = effect(() => {
+    if (!this.canUseAdultFilter() && this.contentFilter() === 'adult') {
+      this.contentFilter.set('all');
+      this.page.set(1);
+    }
+  });
   protected readonly displayRows = computed(() => {
     let visibleEntry = 1;
     let adultEntry = 1;
@@ -238,11 +335,14 @@ export class ArCollectionComponent {
     const query = this.query().trim().toLowerCase();
     const rows = this.displayRows();
 
-    if (!query) {
-      return rows;
-    }
-
-    return rows.filter((display) => this.searchText(display.row).includes(query));
+    return rows
+      .filter((display) => this.matchesContentFilter(display.row))
+      .filter((display) => this.matchesSelectFilter(display.row.language, this.languageFilter()))
+      .filter((display) =>
+        this.matchesSelectFilter(this.categoryLabel(display.row.category), this.categoryFilter()),
+      )
+      .filter((display) => this.matchesSelectFilter(display.row.platform, this.platformFilter()))
+      .filter((display) => !query || this.searchText(display.row).includes(query));
   });
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.filteredRows().length / this.pageSize)),
@@ -280,11 +380,11 @@ export class ArCollectionComponent {
       return 'Loading your collection';
     }
 
-    if (!this.query()) {
+    if (!this.query() && !this.hasActiveFilters()) {
       return total === 1 ? '1 collection title' : `${total} collection titles`;
     }
 
-    return filtered === 1 ? '1 sheet match' : `${filtered} sheet matches`;
+    return filtered === 1 ? '1 collection match' : `${filtered} collection matches`;
   });
 
   protected updateQuery(event: Event): void {
@@ -295,6 +395,31 @@ export class ArCollectionComponent {
 
   protected preventSubmit(event: Event): void {
     event.preventDefault();
+  }
+
+  protected updateContentFilter(value: CollectionContentFilter): void {
+    this.contentFilter.set(value === 'adult' && !this.canUseAdultFilter() ? 'all' : value);
+    this.page.set(1);
+  }
+
+  protected updateLanguageFilter(value: string): void {
+    this.languageFilter.set(this.optionOrAll(value, this.languageOptions()));
+    this.page.set(1);
+  }
+
+  protected updateCategoryFilter(value: string): void {
+    this.categoryFilter.set(this.optionOrAll(value, this.categoryOptions()));
+    this.page.set(1);
+  }
+
+  protected updatePlatformFilter(value: string): void {
+    this.platformFilter.set(this.optionOrAll(value, this.platformOptions()));
+    this.page.set(1);
+  }
+
+  protected selectValue(event: Event): string {
+    const select = event.target as HTMLSelectElement | null;
+    return select?.value ?? 'all';
   }
 
   protected goToPage(page: number): void {
@@ -381,6 +506,58 @@ export class ArCollectionComponent {
     ]
       .join(' ')
       .toLowerCase();
+  }
+
+  private matchesContentFilter(row: ArCollectionRow): boolean {
+    const filter = this.contentFilter();
+
+    if (filter === 'adult') {
+      return this.canUseAdultFilter() && this.isAdultRow(row);
+    }
+
+    if (filter === 'movie') {
+      return this.typeLabel(row.type) === 'Movie';
+    }
+
+    if (filter === 'tv') {
+      return this.typeLabel(row.type) === 'Web Series';
+    }
+
+    return true;
+  }
+
+  private matchesSelectFilter(value: string, filter: string): boolean {
+    return filter === 'all' || this.normalizeOption(value) === this.normalizeOption(filter);
+  }
+
+  private hasActiveFilters(): boolean {
+    return (
+      this.contentFilter() !== 'all' ||
+      this.languageFilter() !== 'all' ||
+      this.categoryFilter() !== 'all' ||
+      this.platformFilter() !== 'all'
+    );
+  }
+
+  private uniqueOptions(values: string[]): string[] {
+    const options = new Map<string, string>();
+
+    values
+      .map((value) => this.valueOrUnavailable(value))
+      .filter((value) => value !== 'Unavailable')
+      .forEach((value) => {
+        options.set(this.normalizeOption(value), value);
+      });
+
+    return Array.from(options.values()).sort((first, second) => first.localeCompare(second));
+  }
+
+  private normalizeOption(value: string): string {
+    return value.trim().toLowerCase();
+  }
+
+  private optionOrAll(value: string, options: string[]): string {
+    return value === 'all' || options.some((option) => option === value) ? value : 'all';
   }
 
   private visiblePageNumbers(currentPage: number, totalPages: number): number[] {
