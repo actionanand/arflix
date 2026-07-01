@@ -1,0 +1,1 @@
+function o(n,t,s=7){let e=Math.max(1,Math.min(t,500)),i=Math.min(Math.max(n,1),e),r=Math.max(5,s);return e<=r?Array.from({length:e},(l,a)=>a+1):i<=4?[1,2,3,4,5,"ellipsis",e]:i>=e-3?[1,"ellipsis",e-4,e-3,e-2,e-1,e]:[1,"ellipsis",i-1,i,i+1,"ellipsis",e]}export{o};
