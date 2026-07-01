@@ -276,7 +276,8 @@ input:focus-visible {
 }
 
 .auth-dialog--wobble {
-  animation: auth-wobble 0.38s ease-in-out;
+  animation: auth-wobble 0.52s ease-in-out;
+  will-change: transform;
 }
 
 .auth-dialog__close {
@@ -388,19 +389,19 @@ input:focus-visible {
   }
 
   20% {
-    transform: translateX(-0.65rem);
+    transform: translateX(-0.9rem);
   }
 
   40% {
-    transform: translateX(0.55rem);
+    transform: translateX(0.75rem);
   }
 
   60% {
-    transform: translateX(-0.35rem);
+    transform: translateX(-0.55rem);
   }
 
   80% {
-    transform: translateX(0.2rem);
+    transform: translateX(0.32rem);
   }
 }
 
@@ -443,6 +444,27 @@ input:focus-visible {
 .legacy-link:hover {
   color: #111;
   background: var(--accent);
+}
+
+.back-to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 30;
+  display: grid;
+  width: 2.85rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(247, 201, 72, 0.62);
+  border-radius: 999px;
+  color: #111;
+  background: var(--accent);
+  box-shadow: 0 0.85rem 2.5rem rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+}
+
+.back-to-top .material-icons {
+  font-size: 1.55rem;
 }
 
 .hero,
@@ -563,6 +585,38 @@ h3 {
 .button-link--fit {
   width: max-content;
   justify-self: center;
+}
+
+.network-help {
+  display: grid;
+  gap: 1rem;
+}
+
+.network-help__steps {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.network-help__step {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.network-help__step p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.network-help__step strong {
+  color: var(--text);
+}
+
+.network-help__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
 }
 
 .spotlight,
@@ -814,6 +868,39 @@ h3 {
   font-weight: 900;
 }
 
+.collection-filter-panel {
+  margin-top: 1rem;
+}
+
+.collection-filter-panel h2 {
+  font-size: 1rem;
+}
+
+.collection-type-filter {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  overflow-x: auto;
+}
+
+.collection-type-filter button {
+  flex: 0 0 auto;
+  min-height: 2.5rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.collection-type-filter button.is-active {
+  color: #111;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
 .feature-carousel {
   position: relative;
   display: grid;
@@ -992,15 +1079,18 @@ h3 {
 }
 
 .pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 0.75rem;
   margin-top: 1rem;
   padding: 0.75rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.pager > button {
+  width: 100%;
 }
 
 .pager span,
@@ -1010,11 +1100,17 @@ h3 {
   font-weight: 800;
 }
 
-.pager--modern div {
+.pager--modern .page-number-list {
   display: flex;
   min-width: 0;
   justify-content: center;
   gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pager--modern .page-number-list::-webkit-scrollbar {
+  display: none;
 }
 
 .page-number-list button {
@@ -1030,6 +1126,16 @@ h3 {
   color: #111;
   border-color: var(--accent);
   background: var(--accent);
+}
+
+.page-ellipsis {
+  display: inline-flex;
+  min-width: 2rem;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: 900;
 }
 
 .pager button:disabled {
@@ -1599,6 +1705,37 @@ h3 {
 
   .image-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .pager > button {
+    width: auto;
+  }
+
+  .pager--modern .page-number-list {
+    overflow-x: visible;
+  }
+
+  .network-help__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .network-help__step {
+    padding: 0.9rem 1rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .network-help__step:first-child {
+    padding-left: 0;
+  }
+
+  .network-help__step:last-child {
+    border-right: 0;
   }
 }
 

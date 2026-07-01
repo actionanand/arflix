@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
+import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import { PersonPageData, TmdbPersonDetails } from '../../models/tmdb';
 import { ArDatePipe } from '../../pipes/ar-date.pipe';
 import { AuthService } from '../../services/auth.service';
@@ -39,9 +40,11 @@ interface PersonInfoRow {
 
 @Component({
   selector: 'app-person-page',
-  imports: [ArDatePipe, MediaCardComponent],
+  imports: [ArDatePipe, MediaCardComponent, NetworkHelpComponent],
   template: `
-    @if (personNotFound()) {
+    @if (personNetworkError()) {
+      <app-network-help (retry)="personResource.reload()" />
+    } @else if (personNotFound()) {
       <section
         class="not-found not-found--compact"
         aria-live="polite"
@@ -147,10 +150,13 @@ export class PersonComponent {
     loader: ({ params, abortSignal }) => this.tmdb.getPerson(params.id, abortSignal),
   });
   protected readonly person = computed<TmdbPersonDetails>(() => this.personResource.value().person);
+  protected readonly personNetworkError = computed(() =>
+    this.tmdb.isNetworkError(this.personResource.error()),
+  );
   protected readonly personNotFound = computed(
     () =>
       this.id() <= 0 ||
-      !!this.personResource.error() ||
+      (!!this.personResource.error() && !this.personNetworkError()) ||
       (!this.personResource.isLoading() && this.person().id <= 0),
   );
   protected readonly canGoBack = computed(() => this.navigationHistory.canGoBack());

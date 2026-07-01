@@ -3,9 +3,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
+import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import { BrowsePageResult, BrowseRequest, MediaType } from '../../models/tmdb';
 import { AuthService } from '../../services/auth.service';
 import { TmdbService } from '../../services/tmdb.service';
+import { visiblePageTokens } from '../../utils/pagination';
 
 const emptyBrowseResult: BrowsePageResult = {
   genreName: 'Category',
@@ -16,7 +18,7 @@ const emptyBrowseResult: BrowsePageResult = {
 
 @Component({
   selector: 'app-category-page',
-  imports: [MediaCardComponent],
+  imports: [MediaCardComponent, NetworkHelpComponent],
   template: `
     <section class="page-head" aria-labelledby="category-title">
       <p class="eyebrow">{{ mediaLabel() }}</p>
@@ -26,7 +28,9 @@ const emptyBrowseResult: BrowsePageResult = {
       </p>
     </section>
 
-    @if (browseResource.error()) {
+    @if (isNetworkError(browseResource.error())) {
+      <app-network-help (retry)="browseResource.reload()" />
+    } @else if (browseResource.error()) {
       <section class="notice" aria-live="polite">
         <h2>Category unavailable</h2>
         <p>Please try again in a moment.</p>
@@ -53,15 +57,19 @@ const emptyBrowseResult: BrowsePageResult = {
             Previous
           </button>
           <div class="page-number-list">
-            @for (pageNumber of pageNumbers(); track pageNumber) {
-              <button
-                type="button"
-                [class.is-active]="pageNumber === page()"
-                [attr.aria-current]="pageNumber === page() ? 'page' : null"
-                (click)="goToPage(pageNumber)"
-              >
-                {{ pageNumber }}
-              </button>
+            @for (pageToken of pageNumbers(); track pageToken + '-' + $index) {
+              @if (pageToken === 'ellipsis') {
+                <span class="page-ellipsis" aria-hidden="true">...</span>
+              } @else {
+                <button
+                  type="button"
+                  [class.is-active]="pageToken === page()"
+                  [attr.aria-current]="pageToken === page() ? 'page' : null"
+                  (click)="goToPage(pageToken)"
+                >
+                  {{ pageToken }}
+                </button>
+              }
             }
           </div>
           <button
@@ -118,7 +126,7 @@ export class CategoryComponent {
     loader: ({ params, abortSignal }) => this.tmdb.browseByCategory(params, abortSignal),
   });
   protected readonly pageNumbers = computed(() =>
-    this.visiblePageNumbers(this.page(), this.browseResource.value().totalPages),
+    visiblePageTokens(this.page(), this.browseResource.value().totalPages),
   );
 
   protected goToPage(page: number): void {
@@ -130,13 +138,7 @@ export class CategoryComponent {
     });
   }
 
-  private visiblePageNumbers(currentPage: number, totalPages: number): number[] {
-    const lastPage = Math.min(totalPages, 500);
-    const start = Math.max(1, Math.min(currentPage - 2, lastPage - 4));
-    const count = Math.min(5, lastPage);
-
-    return Array.from({ length: count }, (_, index) => start + index).filter(
-      (page) => page <= lastPage,
-    );
+  protected isNetworkError(error: unknown): boolean {
+    return this.tmdb.isNetworkError(error);
   }
 }

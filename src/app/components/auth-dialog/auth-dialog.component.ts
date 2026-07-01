@@ -89,6 +89,7 @@ export class AuthDialogComponent {
   protected readonly wobble = signal(false);
   protected readonly isSubmitting = signal(false);
   protected readonly showPassword = signal(false);
+  private wobbleTimer: ReturnType<typeof setTimeout> | undefined;
 
   protected updateUserName(event: Event): void {
     const input = event.target as HTMLInputElement | null;
@@ -122,9 +123,7 @@ export class AuthDialogComponent {
     this.messageType.set('error');
     this.message.set('Wrong password. Please re-enter.');
     this.password.set('');
-    this.wobble.set(false);
-    setTimeout(() => this.wobble.set(true), 0);
-    setTimeout(() => this.wobble.set(false), 420);
+    this.triggerWobble();
   }
 
   protected togglePasswordVisibility(): void {
@@ -138,5 +137,22 @@ export class AuthDialogComponent {
     this.wobble.set(false);
     this.isSubmitting.set(false);
     this.showPassword.set(false);
+    this.clearWobbleTimer();
+  }
+
+  private triggerWobble(): void {
+    this.clearWobbleTimer();
+    this.wobble.set(false);
+    requestAnimationFrame(() => {
+      this.wobble.set(true);
+      this.wobbleTimer = setTimeout(() => this.wobble.set(false), 560);
+    });
+  }
+
+  private clearWobbleTimer(): void {
+    if (this.wobbleTimer) {
+      clearTimeout(this.wobbleTimer);
+      this.wobbleTimer = undefined;
+    }
   }
 }
