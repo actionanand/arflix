@@ -446,6 +446,27 @@ input:focus-visible {
   background: var(--accent);
 }
 
+.back-to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 30;
+  display: grid;
+  width: 2.85rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(247, 201, 72, 0.62);
+  border-radius: 999px;
+  color: #111;
+  background: var(--accent);
+  box-shadow: 0 0.85rem 2.5rem rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+}
+
+.back-to-top .material-icons {
+  font-size: 1.55rem;
+}
+
 .hero,
 .page-head,
 .detail,
@@ -1058,15 +1079,18 @@ h3 {
 }
 
 .pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 0.75rem;
   margin-top: 1rem;
   padding: 0.75rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.pager > button {
+  width: 100%;
 }
 
 .pager span,
@@ -1076,11 +1100,17 @@ h3 {
   font-weight: 800;
 }
 
-.pager--modern div {
+.pager--modern .page-number-list {
   display: flex;
   min-width: 0;
   justify-content: center;
   gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pager--modern .page-number-list::-webkit-scrollbar {
+  display: none;
 }
 
 .page-number-list button {
@@ -1096,6 +1126,16 @@ h3 {
   color: #111;
   border-color: var(--accent);
   background: var(--accent);
+}
+
+.page-ellipsis {
+  display: inline-flex;
+  min-width: 2rem;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: 900;
 }
 
 .pager button:disabled {
@@ -1665,6 +1705,20 @@ h3 {
 
   .image-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .pager > button {
+    width: auto;
+  }
+
+  .pager--modern .page-number-list {
+    overflow-x: visible;
   }
 
   .network-help__steps {

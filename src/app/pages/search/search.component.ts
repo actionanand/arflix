@@ -13,6 +13,7 @@ import {
 } from '../../models/tmdb';
 import { AuthService } from '../../services/auth.service';
 import { TmdbService } from '../../services/tmdb.service';
+import { visiblePageTokens } from '../../utils/pagination';
 
 const emptyBrowseCategories: BrowseCategories = {
   movieGenres: [],
@@ -180,15 +181,19 @@ const emptySearchResult: SearchPageResult = {
             Previous
           </button>
           <div class="page-number-list">
-            @for (pageNumber of pageNumbers(); track pageNumber) {
-              <button
-                type="button"
-                [class.is-active]="pageNumber === page()"
-                [attr.aria-current]="pageNumber === page() ? 'page' : null"
-                (click)="goToPage(pageNumber)"
-              >
-                {{ pageNumber }}
-              </button>
+            @for (pageToken of pageNumbers(); track pageToken + '-' + $index) {
+              @if (pageToken === 'ellipsis') {
+                <span class="page-ellipsis" aria-hidden="true">...</span>
+              } @else {
+                <button
+                  type="button"
+                  [class.is-active]="pageToken === page()"
+                  [attr.aria-current]="pageToken === page() ? 'page' : null"
+                  (click)="goToPage(pageToken)"
+                >
+                  {{ pageToken }}
+                </button>
+              }
             }
           </div>
           <button
@@ -264,7 +269,7 @@ export class SearchComponent {
     return count === 1 ? `1 ${label} found` : `${count.toLocaleString()} ${label}s found`;
   });
   protected readonly pageNumbers = computed(() =>
-    this.visiblePageNumbers(this.page(), this.searchResource.value().totalPages),
+    visiblePageTokens(this.page(), this.searchResource.value().totalPages),
   );
 
   protected updateDraftQuery(event: Event): void {
@@ -347,15 +352,5 @@ export class SearchComponent {
   private buildYears(): string[] {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 45 }, (_, index) => String(currentYear - index));
-  }
-
-  private visiblePageNumbers(currentPage: number, totalPages: number): number[] {
-    const lastPage = Math.min(totalPages, 500);
-    const start = Math.max(1, Math.min(currentPage - 2, lastPage - 4));
-    const count = Math.min(5, lastPage);
-
-    return Array.from({ length: count }, (_, index) => start + index).filter(
-      (page) => page <= lastPage,
-    );
   }
 }

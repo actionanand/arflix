@@ -7,6 +7,7 @@ import { ArCollectionItem, ArCollectionRow } from '../../models/ar-collection';
 import { AuthService } from '../../services/auth.service';
 import { ArCollectionService } from '../../services/ar-collection.service';
 import { TmdbService } from '../../services/tmdb.service';
+import { visiblePageTokens } from '../../utils/pagination';
 
 type CollectionContentFilter = 'adult' | 'all' | 'movie' | 'tv';
 
@@ -244,15 +245,19 @@ interface CollectionPageRequest {
             Previous
           </button>
           <div class="page-number-list">
-            @for (pageNumber of pageNumbers(); track pageNumber) {
-              <button
-                type="button"
-                [class.is-active]="pageNumber === safePage()"
-                [attr.aria-current]="pageNumber === safePage() ? 'page' : null"
-                (click)="goToPage(pageNumber)"
-              >
-                {{ pageNumber }}
-              </button>
+            @for (pageToken of pageNumbers(); track pageToken + '-' + $index) {
+              @if (pageToken === 'ellipsis') {
+                <span class="page-ellipsis" aria-hidden="true">...</span>
+              } @else {
+                <button
+                  type="button"
+                  [class.is-active]="pageToken === safePage()"
+                  [attr.aria-current]="pageToken === safePage() ? 'page' : null"
+                  (click)="goToPage(pageToken)"
+                >
+                  {{ pageToken }}
+                </button>
+              }
             }
           </div>
           <button
@@ -370,7 +375,7 @@ export class ArCollectionComponent {
     return mediaMap;
   });
   protected readonly pageNumbers = computed(() =>
-    this.visiblePageNumbers(this.safePage(), this.totalPages()),
+    visiblePageTokens(this.safePage(), this.totalPages()),
   );
   protected readonly summary = computed(() => {
     const total = this.visibleRows().length;
@@ -558,14 +563,5 @@ export class ArCollectionComponent {
 
   private optionOrAll(value: string, options: string[]): string {
     return value === 'all' || options.some((option) => option === value) ? value : 'all';
-  }
-
-  private visiblePageNumbers(currentPage: number, totalPages: number): number[] {
-    const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
-    const count = Math.min(5, totalPages);
-
-    return Array.from({ length: count }, (_, index) => start + index).filter(
-      (page) => page <= totalPages,
-    );
   }
 }
