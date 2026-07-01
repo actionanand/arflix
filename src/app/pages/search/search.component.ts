@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
+import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import {
   BrowseCategories,
   SearchPageResult,
@@ -26,7 +27,7 @@ const emptySearchResult: SearchPageResult = {
 
 @Component({
   selector: 'app-search-page',
-  imports: [MediaCardComponent, RouterLink],
+  imports: [MediaCardComponent, NetworkHelpComponent, RouterLink],
   template: `
     <section class="page-head" aria-labelledby="search-title">
       <p class="eyebrow">Search</p>
@@ -132,11 +133,15 @@ const emptySearchResult: SearchPageResult = {
       </section>
     </section>
 
-    @if (!query()) {
+    @if (!query() && isNetworkError(categoryResource.error())) {
+      <app-network-help (retry)="categoryResource.reload()" />
+    } @else if (!query()) {
       <section class="empty-state">
         <h2>Start with a title</h2>
         <p>Try a movie, a web series, or a TV serial name.</p>
       </section>
+    } @else if (isNetworkError(searchResource.error())) {
+      <app-network-help (retry)="searchResource.reload()" />
     } @else if (searchResource.error()) {
       <section class="notice" aria-live="polite">
         <h2>Search failed</h2>
@@ -315,6 +320,10 @@ export class SearchComponent {
   protected selectValue(event: Event): string {
     const select = event.target as HTMLSelectElement | null;
     return select?.value ?? '';
+  }
+
+  protected isNetworkError(error: unknown): boolean {
+    return this.tmdb.isNetworkError(error);
   }
 
   private toSearchType(value: string | null): SearchType {

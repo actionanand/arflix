@@ -565,6 +565,38 @@ h3 {
   justify-self: center;
 }
 
+.network-help {
+  display: grid;
+  gap: 1rem;
+}
+
+.network-help__steps {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.network-help__step {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.network-help__step p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.network-help__step strong {
+  color: var(--text);
+}
+
+.network-help__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
 .spotlight,
 .rail,
 .page-head,
@@ -1599,6 +1631,23 @@ h3 {
 
   .image-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .network-help__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .network-help__step {
+    padding: 0.9rem 1rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .network-help__step:first-child {
+    padding-left: 0;
+  }
+
+  .network-help__step:last-child {
+    border-right: 0;
   }
 }
 

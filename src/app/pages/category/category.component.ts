@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
+import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import { BrowsePageResult, BrowseRequest, MediaType } from '../../models/tmdb';
 import { AuthService } from '../../services/auth.service';
 import { TmdbService } from '../../services/tmdb.service';
@@ -16,7 +17,7 @@ const emptyBrowseResult: BrowsePageResult = {
 
 @Component({
   selector: 'app-category-page',
-  imports: [MediaCardComponent],
+  imports: [MediaCardComponent, NetworkHelpComponent],
   template: `
     <section class="page-head" aria-labelledby="category-title">
       <p class="eyebrow">{{ mediaLabel() }}</p>
@@ -26,7 +27,9 @@ const emptyBrowseResult: BrowsePageResult = {
       </p>
     </section>
 
-    @if (browseResource.error()) {
+    @if (isNetworkError(browseResource.error())) {
+      <app-network-help (retry)="browseResource.reload()" />
+    } @else if (browseResource.error()) {
       <section class="notice" aria-live="polite">
         <h2>Category unavailable</h2>
         <p>Please try again in a moment.</p>
@@ -128,6 +131,10 @@ export class CategoryComponent {
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  protected isNetworkError(error: unknown): boolean {
+    return this.tmdb.isNetworkError(error);
   }
 
   private visiblePageNumbers(currentPage: number, totalPages: number): number[] {

@@ -31,12 +31,20 @@ import { AuthService } from './auth.service';
 
 type QueryValue = string | number | boolean | undefined;
 
+export class TmdbNetworkError extends Error {
+  constructor() {
+    super('TMDb is not reachable from this network.');
+    this.name = 'TmdbNetworkError';
+  }
+}
+
 @Service()
 export class TmdbService {
   private readonly auth = inject(AuthService);
   private readonly baseUrl = environment.tmdbBaseUrl;
   private readonly imageBaseUrl = environment.tmdbImageBaseUrl;
   private readonly apiReadToken = environment.tmdbApiReadToken;
+  private readonly requestTimeoutMs = 12000;
   readonly movieFallbackImage = 'assets/images/movie-not-found.png';
   readonly posterFallbackImage = 'assets/images/img-not-found.svg';
   readonly castFallbackImage = 'assets/images/man-placeholder.jpg';
@@ -360,6 +368,10 @@ export class TmdbService {
     return `https://www.youtube.com/watch?v=${video.key}`;
   }
 
+  isNetworkError(error: unknown): boolean {
+    return error instanceof TmdbNetworkError;
+  }
+
   private async getGenres(type: MediaType, abortSignal?: AbortSignal): Promise<TmdbGenre[]> {
     const response = await this.request<{ genres: TmdbGenre[] }>(
       `/genre/${type}/list`,
@@ -402,19 +414,72 @@ export class TmdbService {
       }
     });
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${this.apiReadToken}`,
-        Accept: 'application/json',
-      },
-      signal: abortSignal,
-    });
+    let didTimeout = false;
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      didTimeout = true;
+      timeoutController.abort();
+    }, this.requestTimeoutMs);
+    const requestSignal = this.createRequestSignal(abortSignal, timeoutController.signal);
 
-    if (!response.ok) {
-      throw new Error(`TMDb request failed with status ${response.status}`);
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${this.apiReadToken}`,
+          Accept: 'application/json',
+        },
+        signal: requestSignal.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`TMDb request failed with status ${response.status}`);
+      }
+
+      return (await response.json()) as T;
+    } catch (error) {
+      if (didTimeout || this.isFetchNetworkFailure(error)) {
+        throw new TmdbNetworkError();
+      }
+
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+      requestSignal.cleanup();
+    }
+  }
+
+  private createRequestSignal(
+    abortSignal: AbortSignal | undefined,
+    timeoutSignal: AbortSignal,
+  ): { cleanup: () => void; signal: AbortSignal } {
+    if (!abortSignal) {
+      return {
+        cleanup: () => undefined,
+        signal: timeoutSignal,
+      };
     }
 
-    return (await response.json()) as T;
+    const controller = new AbortController();
+    const abortRequest = () => controller.abort();
+
+    if (abortSignal.aborted || timeoutSignal.aborted) {
+      controller.abort();
+    } else {
+      abortSignal.addEventListener('abort', abortRequest, { once: true });
+      timeoutSignal.addEventListener('abort', abortRequest, { once: true });
+    }
+
+    return {
+      cleanup: () => {
+        abortSignal.removeEventListener('abort', abortRequest);
+        timeoutSignal.removeEventListener('abort', abortRequest);
+      },
+      signal: controller.signal,
+    };
+  }
+
+  private isFetchNetworkFailure(error: unknown): boolean {
+    return error instanceof TypeError;
   }
 
   private toMediaItem(result: TmdbMediaResult, fallbackType: MediaType | 'all'): MediaItem | null {

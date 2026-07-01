@@ -152,7 +152,8 @@ interface CollectionPageRequest {
                   } @else {
                     <p class="collection-only">Sheet-only entry</p>
                     <p class="collection-overview">
-                      No matching TMDb poster or details were found.
+                      TMDb details are unavailable right now, so the sheet details and fallback
+                      image are shown.
                     </p>
                   }
                 </div>
