@@ -73,6 +73,9 @@ jobs:
       - name: Sync web assets
         run: npx cap sync android
 
+      - name: Patch Android shell
+        run: node scripts/patch-android-shell.mjs
+
       - name: Inject app icon
         run: |
           mkdir -p releases
