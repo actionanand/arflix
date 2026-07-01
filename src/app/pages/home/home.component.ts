@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { FeatureCarouselComponent } from '../../components/feature-carousel/feature-carousel.component';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
+import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import { HomeSections } from '../../models/tmdb';
 import { AuthService } from '../../services/auth.service';
 import { TmdbService } from '../../services/tmdb.service';
@@ -18,7 +19,7 @@ const emptyHomeSections: HomeSections = {
 
 @Component({
   selector: 'app-home-page',
-  imports: [FeatureCarouselComponent, MediaCardComponent, RouterLink],
+  imports: [FeatureCarouselComponent, MediaCardComponent, NetworkHelpComponent, RouterLink],
   template: `
     <section class="hero" aria-labelledby="home-title">
       <p class="eyebrow">Movies, web series, and TV serials</p>
@@ -45,7 +46,9 @@ const emptyHomeSections: HomeSections = {
       </form>
     </section>
 
-    @if (homeResource.error()) {
+    @if (isNetworkError(homeResource.error())) {
+      <app-network-help (retry)="homeResource.reload()" />
+    } @else if (homeResource.error()) {
       <section class="notice" aria-live="polite">
         <h2>Unable to load TMDb titles</h2>
         <p>Please check your connection and try again.</p>
@@ -145,5 +148,9 @@ export class HomeComponent {
         type: 'all',
       },
     });
+  }
+
+  protected isNetworkError(error: unknown): boolean {
+    return this.tmdb.isNetworkError(error);
   }
 }

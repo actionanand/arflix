@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
+import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
 import { ArDatePipe } from '../../pipes/ar-date.pipe';
 import { AuthService } from '../../services/auth.service';
@@ -52,9 +53,11 @@ interface InfoRow {
 
 @Component({
   selector: 'app-details-page',
-  imports: [ArDatePipe, MediaCardComponent, NgOptimizedImage, RouterLink],
+  imports: [ArDatePipe, MediaCardComponent, NetworkHelpComponent, NgOptimizedImage, RouterLink],
   template: `
-    @if (detailNotFound()) {
+    @if (detailNetworkError()) {
+      <app-network-help (retry)="detailsResource.reload()" />
+    } @else if (detailNotFound()) {
       <section
         class="not-found not-found--compact"
         aria-live="polite"
@@ -367,10 +370,13 @@ export class DetailsComponent {
     loader: ({ params, abortSignal }) => this.tmdb.getDetails(params.type, params.id, abortSignal),
   });
   protected readonly details = computed<TmdbDetails>(() => this.detailsResource.value().details);
+  protected readonly detailNetworkError = computed(() =>
+    this.tmdb.isNetworkError(this.detailsResource.error()),
+  );
   protected readonly detailNotFound = computed(
     () =>
       this.id() <= 0 ||
-      !!this.detailsResource.error() ||
+      (!!this.detailsResource.error() && !this.detailNetworkError()) ||
       (!this.detailsResource.isLoading() && this.details().id <= 0),
   );
   protected readonly canGoBack = computed(() => this.navigationHistory.canGoBack());
