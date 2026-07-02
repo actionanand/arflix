@@ -2,6 +2,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
+import { CopyLinkMenuComponent } from '../../components/copy-link-menu/copy-link-menu.component';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
 import { PersonPageData, TmdbPersonDetails } from '../../models/tmdb';
@@ -40,7 +41,7 @@ interface PersonInfoRow {
 
 @Component({
   selector: 'app-person-page',
-  imports: [ArDatePipe, MediaCardComponent, NetworkHelpComponent],
+  imports: [ArDatePipe, CopyLinkMenuComponent, MediaCardComponent, NetworkHelpComponent],
   template: `
     @if (personNetworkError()) {
       <app-network-help (retry)="personResource.reload()" />
@@ -85,8 +86,8 @@ interface PersonInfoRow {
             <p class="overview">Biography unavailable.</p>
           }
 
-          @if (imdbUrl()) {
-            <div class="actions">
+          <div class="actions">
+            @if (imdbUrl()) {
               <a
                 class="button-link button-link--secondary"
                 [href]="imdbUrl()"
@@ -95,8 +96,9 @@ interface PersonInfoRow {
               >
                 IMDb reference
               </a>
-            </div>
-          }
+            }
+            <app-copy-link-menu routePath="person" [routeId]="id()" />
+          </div>
         </div>
       </article>
 

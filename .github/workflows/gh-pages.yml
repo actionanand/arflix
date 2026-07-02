@@ -31,6 +31,14 @@ jobs:
           sed -i "s|TMDB_API_READ_TOKEN_PLACEHOLDER|${{ env.TMDB_API_READ_TOKEN }}|g" src/environments/environment.ts
           sed -i "s|PASSWORD_HASH_PLACEHOLDER|${{ env.PASSWORD_HASH }}|g" src/environments/environment.ts
 
+      - name: Generate Android asset links
+        env:
+          SHA256_FINGERPRINT: ${{ secrets.SHA256_FINGERPRINT }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: npm run generate:assetlinks
+
       - name: Extract repository name from package.json
         id: package
         run: echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT

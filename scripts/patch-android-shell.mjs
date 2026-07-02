@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const packageName = 'com.actionanand.arflix.app';
 const packagePath = packageName.replaceAll('.', '/');
 const javaDir = join('android', 'app', 'src', 'main', 'java', packagePath);
 const mainActivityPath = join(javaDir, 'MainActivity.java');
+const manifestPath = join('android', 'app', 'src', 'main', 'AndroidManifest.xml');
+const valuesDir = join('android', 'app', 'src', 'main', 'res', 'values');
+const colorsPath = join(valuesDir, 'colors.xml');
+const stylesPath = join(valuesDir, 'styles.xml');
 
 assertAndroidProject();
 mkdirSync(javaDir, { recursive: true });
+mkdirSync(valuesDir, { recursive: true });
 
 writeFileSync(
   mainActivityPath,
@@ -87,6 +92,13 @@ public class MainActivity extends BridgeActivity {
 
   private void tintSystemBars() {
     Window window = getWindow();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      window.setDecorFitsSystemWindows(true);
+    }
+    window.clearFlags(
+      WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+        | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+    );
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
     window.setStatusBarColor(SHELL_BAR_COLOR);
     window.setNavigationBarColor(SHELL_BAR_COLOR);
@@ -94,6 +106,9 @@ public class MainActivity extends BridgeActivity {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       View decor = window.getDecorView();
       int flags = decor.getSystemUiVisibility();
+      flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+      flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+      flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
       flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
@@ -253,10 +268,88 @@ public class MainActivity extends BridgeActivity {
 `,
 );
 
-console.log('Android shell patched with native ARFlix image saving.');
+writeFileSync(
+  colorsPath,
+  `<resources>
+    <color name="app_shell_bar">#07080c</color>
+    <color name="app_shell_background">#07080c</color>
+    <color name="app_shell_accent">#f7c948</color>
+</resources>
+`,
+);
+
+writeFileSync(
+  stylesPath,
+  `<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/app_shell_bar</item>
+        <item name="android:navigationBarColor">@color/app_shell_bar</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowBackground">@color/app_shell_background</item>
+        <item name="android:colorAccent">@color/app_shell_accent</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="AppTheme" />
+
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@color/app_shell_background</item>
+        <item name="windowSplashScreenBackground">@color/app_shell_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+    </style>
+</resources>
+`,
+);
+
+patchAndroidManifest();
+
+console.log('Android shell patched with native ARFlix image saving, dark bars, and deep links.');
 
 function assertAndroidProject() {
   if (!existsSync(join('android', 'app'))) {
     throw new Error('Android project was not found. Run `npx cap add android` first.');
   }
+}
+
+function patchAndroidManifest() {
+  if (!existsSync(manifestPath)) {
+    throw new Error('AndroidManifest.xml was not found.');
+  }
+
+  const manifest = readFileSync(manifestPath, 'utf8');
+  if (manifest.includes('android:scheme="arflix"')) {
+    return;
+  }
+
+  const deepLinks = `
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="arflix" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="actionanand.github.io"
+                    android:pathPrefix="/arflix" />
+            </intent-filter>`;
+
+  const patched = manifest.replace(
+    /(<activity[\s\S]*?android:name="\.MainActivity"[\s\S]*?>)([\s\S]*?)(<\/activity>)/,
+    `$1$2${deepLinks}
+        $3`,
+  );
+
+  writeFileSync(manifestPath, patched);
 }

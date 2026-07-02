@@ -3,6 +3,7 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
+import { CopyLinkMenuComponent } from '../../components/copy-link-menu/copy-link-menu.component';
 import { environment } from '../../../environments/environment';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
@@ -59,7 +60,14 @@ interface AndroidImageSaver {
 
 @Component({
   selector: 'app-details-page',
-  imports: [ArDatePipe, MediaCardComponent, NetworkHelpComponent, NgOptimizedImage, RouterLink],
+  imports: [
+    ArDatePipe,
+    CopyLinkMenuComponent,
+    MediaCardComponent,
+    NetworkHelpComponent,
+    NgOptimizedImage,
+    RouterLink,
+  ],
   template: `
     @if (detailNetworkError()) {
       <app-network-help (retry)="detailsResource.reload()" />
@@ -154,6 +162,7 @@ interface AndroidImageSaver {
                 IMDb reference
               </a>
             }
+            <app-copy-link-menu [routePath]="shareRoutePath()" [routeId]="id()" />
           </div>
         </div>
       </article>
@@ -396,6 +405,9 @@ export class DetailsComponent {
   protected readonly title = computed(() => this.tmdb.mediaTitle(this.details()));
   protected readonly mediaLabel = computed(() =>
     this.mediaType() === 'movie' ? 'Movie' : 'Web series / TV serial',
+  );
+  protected readonly shareRoutePath = computed(() =>
+    this.mediaType() === 'movie' ? 'movie' : 'tv-show',
   );
   protected readonly tagline = computed(() => this.details().tagline);
   protected readonly overview = computed(() => this.details().overview ?? '');
