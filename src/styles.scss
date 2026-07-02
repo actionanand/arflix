@@ -190,6 +190,80 @@ input:focus-visible {
   cursor: pointer;
 }
 
+.copy-link-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.copy-link-menu__trigger {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.copy-link-menu__trigger .material-icons {
+  font-size: 1.1rem;
+}
+
+.copy-link-menu__panel {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 12;
+  min-width: 9.5rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #11141d;
+  box-shadow: 0 1rem 2.6rem rgba(0, 0, 0, 0.34);
+}
+
+.copy-link-menu__panel button {
+  display: block;
+  width: 100%;
+  min-height: 2.55rem;
+  padding: 0 0.85rem;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.copy-link-menu__panel button:hover,
+.copy-link-menu__panel button:focus-visible {
+  color: #111;
+  background: var(--accent);
+  outline: 0;
+}
+
+.copy-link-menu__status {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 11;
+  width: max-content;
+  max-width: 12rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(247, 201, 72, 0.45);
+  border-radius: var(--radius);
+  color: var(--accent);
+  background: #11141d;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
 .family-toggle {
   display: inline-flex;
   align-items: center;
