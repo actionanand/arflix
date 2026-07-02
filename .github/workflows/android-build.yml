@@ -46,6 +46,14 @@ jobs:
           PASSWORD_HASH: ${{ secrets.PASSWORD_HASH }}
         run: node scripts/inject-env.js
 
+      - name: Generate Android asset links
+        env:
+          SHA256_FINGERPRINT: ${{ secrets.SHA256_FINGERPRINT }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: npm run generate:assetlinks
+
       - name: Build Angular app
         run: npm run build -- --configuration=production
 
@@ -226,13 +234,15 @@ jobs:
         if: github.ref == 'refs/heads/main-android'
         run: |
           mkdir -p releases
+          mkdir -p releases/.well-known
           rm -f "releases/${RELEASE_BASENAME}.apk" "releases/${RELEASE_BASENAME}.aab"
           cp "android/app/build/outputs/apk/release/${RELEASE_BASENAME}.apk" "releases/${RELEASE_BASENAME}.apk"
           cp "android/app/build/outputs/bundle/release/${RELEASE_BASENAME}.aab" "releases/${RELEASE_BASENAME}.aab"
+          cp public/.well-known/assetlinks.json releases/.well-known/assetlinks.json
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase --autostash
-          git add releases/
+          git add releases/ public/.well-known/assetlinks.json
           git diff --cached --quiet || git commit -m "build: update Android releases [skip ci]"
           git push
 
