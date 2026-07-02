@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.actionanand.arflix.app",
+      "sha256_cert_fingerprints": [
+        "97:A4:FB:AC:13:A1:EF:08:44:5F:F8:6B:C1:F3:80:F2:69:8A:90:83:CB:CB:45:35:17:02:66:FF:19:49:26:C0"
+      ]
+    }
+  }
+]
