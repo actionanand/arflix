@@ -216,11 +216,12 @@ input:focus-visible {
 }
 
 .copy-link-menu__panel {
-  position: absolute;
-  top: calc(100% + 0.45rem);
-  right: 0;
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
   z-index: 12;
-  min-width: 9.5rem;
+  width: auto;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -249,12 +250,12 @@ input:focus-visible {
 }
 
 .copy-link-menu__status {
-  position: absolute;
-  top: calc(100% + 0.45rem);
-  right: 0;
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
   z-index: 11;
-  width: max-content;
-  max-width: 12rem;
+  width: auto;
   padding: 0.5rem 0.65rem;
   border: 1px solid rgba(247, 201, 72, 0.45);
   border-radius: var(--radius);
@@ -262,6 +263,7 @@ input:focus-visible {
   background: #11141d;
   font-size: 0.75rem;
   font-weight: 900;
+  text-align: center;
 }
 
 .family-toggle {
@@ -1799,6 +1801,26 @@ h3 {
 
   .pager--modern .page-number-list {
     overflow-x: visible;
+  }
+
+  .copy-link-menu__panel {
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    right: 0;
+    bottom: auto;
+    left: auto;
+    min-width: 9.5rem;
+  }
+
+  .copy-link-menu__status {
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    right: 0;
+    bottom: auto;
+    left: auto;
+    width: max-content;
+    max-width: 12rem;
+    text-align: left;
   }
 
   .network-help__steps {
