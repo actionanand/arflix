@@ -9,19 +9,25 @@ type LinkTarget = 'android' | 'web';
   template: `
     <div class="copy-link-menu">
       <button
+        #triggerButton
         type="button"
         class="copy-link-menu__trigger"
         aria-label="Copy page link"
         aria-haspopup="menu"
         [attr.aria-expanded]="menuOpen()"
-        (click)="toggleMenu()"
+        (click)="toggleMenu(triggerButton)"
       >
         <span class="material-icons" aria-hidden="true">content_copy</span>
         <span>Copy</span>
       </button>
 
       @if (menuOpen()) {
-        <div class="copy-link-menu__panel" role="menu" aria-label="Copy page link">
+        <div
+          class="copy-link-menu__panel"
+          role="menu"
+          aria-label="Copy page link"
+          [style.--copy-menu-shift.px]="panelShift()"
+        >
           <button type="button" role="menuitem" (click)="copyLink('web')">Web link</button>
           <button type="button" role="menuitem" (click)="copyLink('android')">Android link</button>
         </div>
@@ -39,12 +45,18 @@ export class CopyLinkMenuComponent {
 
   protected readonly menuOpen = signal(false);
   protected readonly message = signal('');
+  protected readonly panelShift = signal(0);
   private readonly pagePath = computed(
     () => `${this.routePath().replace(/^\/+|\/+$/g, '')}/${encodeURIComponent(this.routeId())}`,
   );
 
-  protected toggleMenu(): void {
-    this.menuOpen.update((open) => !open);
+  protected toggleMenu(trigger: HTMLElement): void {
+    const willOpen = !this.menuOpen();
+    this.menuOpen.set(willOpen);
+
+    if (willOpen) {
+      this.positionPanel(trigger);
+    }
   }
 
   protected async copyLink(target: LinkTarget): Promise<void> {
@@ -83,5 +95,15 @@ export class CopyLinkMenuComponent {
     textarea.select();
     document.execCommand('copy');
     textarea.remove();
+  }
+
+  private positionPanel(trigger: HTMLElement): void {
+    const rect = trigger.getBoundingClientRect();
+    const panelWidth = 168;
+    const viewportPadding = 10;
+    const maxLeft = window.innerWidth - panelWidth - viewportPadding;
+    const clampedLeft = Math.max(viewportPadding, Math.min(rect.left, maxLeft));
+
+    this.panelShift.set(clampedLeft - rect.left);
   }
 }
