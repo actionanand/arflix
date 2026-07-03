@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const packageName = 'com.actionanand.arflix.app';
@@ -13,6 +13,8 @@ const drawableDir = join('android', 'app', 'src', 'main', 'res', 'drawable');
 const colorsPath = join(valuesDir, 'colors.xml');
 const stylesPath = join(valuesDir, 'styles.xml');
 const splashIconPath = join(drawableDir, 'ic_splash_arflix.xml');
+const splashLogoSource = join('public', 'ar_flix.png');
+const splashLogoPath = join(drawableDir, 'ar_flix.png');
 
 assertAndroidProject();
 mkdirSync(javaDir, { recursive: true });
@@ -283,21 +285,17 @@ writeFileSync(
 
 writeFileSync(
   splashIconPath,
-  `<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:width="288dp" android:height="288dp" android:gravity="center">
-        <shape android:shape="rectangle">
-            <size android:width="288dp" android:height="288dp" />
-            <solid android:color="@android:color/transparent" />
-        </shape>
-    </item>
-    <item android:width="168dp" android:height="168dp" android:gravity="center">
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/ar_flix" />
-    </item>
-</layer-list>
+  `<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ar_flix"
+    android:inset="20%" />
 `,
 );
+
+// Keep the Android splash drawable in sync with the current app logo so the
+// image on the splash screen always matches public/ar_flix.png.
+if (existsSync(splashLogoSource)) {
+  copyFileSync(splashLogoSource, splashLogoPath);
+}
 
 writeFileSync(
   stylesPath,
