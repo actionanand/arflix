@@ -1,4 +1,5 @@
 import { Component, DestroyRef, afterNextRender, inject, signal } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 interface CapacitorBridge {
   getPlatform?: () => string;
@@ -6,7 +7,15 @@ interface CapacitorBridge {
 
 const DISMISS_KEY = 'arflix.appBannerDismissed';
 const AUTO_HIDE_MS = 15000;
-const APP_DEEP_LINK = 'arflix://home';
+
+function buildAppDeepLink(base: string, path: string): string {
+  const trimmed = (base ?? '').trim();
+  if (trimmed.endsWith('://') || trimmed.endsWith('/')) return `${trimmed}${path}`;
+  return `${trimmed}/${path}`;
+}
+
+// Derived from the single source of truth in the environment file.
+const APP_DEEP_LINK = buildAppDeepLink(environment.androidDeepLinkBaseUrl, 'home');
 
 @Component({
   selector: 'app-install-banner',
