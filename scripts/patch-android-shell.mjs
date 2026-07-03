@@ -290,7 +290,7 @@ writeFileSync(
         android:right="54dp"
         android:bottom="54dp">
         <bitmap
-            android:gravity="center"
+            android:gravity="fill"
             android:src="@drawable/ar_flix" />
     </item>
 </layer-list>
