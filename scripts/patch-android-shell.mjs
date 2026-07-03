@@ -26,6 +26,7 @@ writeFileSync(
   `package ${packageName};
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -54,14 +55,37 @@ import java.net.URLConnection;
 
 public class MainActivity extends BridgeActivity {
   private static final int SHELL_BAR_COLOR = Color.parseColor("#07080c");
+  private static String pendingDeepLink = "";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+    storeDeepLink(getIntent());
     super.onCreate(savedInstanceState);
     disableWebViewDarkening();
     attachAndroidBridge();
     tintSystemBars();
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    storeDeepLink(intent);
+  }
+
+  private static synchronized void storeDeepLink(Intent intent) {
+    if (intent == null) return;
+    Uri data = intent.getData();
+    if (data != null) {
+      pendingDeepLink = data.toString();
+    }
+  }
+
+  public static synchronized String consumePendingDeepLink() {
+    String link = pendingDeepLink == null ? "" : pendingDeepLink;
+    pendingDeepLink = "";
+    return link;
   }
 
   @Override
@@ -133,6 +157,11 @@ public class MainActivity extends BridgeActivity {
   }
 
   private class AndroidImageSaver {
+    @JavascriptInterface
+    public String consumeDeepLink() {
+      return consumePendingDeepLink();
+    }
+
     @JavascriptInterface
     public boolean saveImageFromUrl(String imageUrl, String fileName) {
       try {
