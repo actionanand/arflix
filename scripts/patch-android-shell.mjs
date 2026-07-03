@@ -284,13 +284,14 @@ writeFileSync(
 writeFileSync(
   splashIconPath,
   `<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/app_shell_background" />
     <item
-        android:left="54dp"
-        android:top="54dp"
-        android:right="54dp"
-        android:bottom="54dp">
+        android:left="20dp"
+        android:top="20dp"
+        android:right="20dp"
+        android:bottom="20dp">
         <bitmap
-            android:gravity="fill"
+            android:gravity="center"
             android:src="@drawable/ar_flix" />
     </item>
 </layer-list>
@@ -321,7 +322,7 @@ writeFileSync(
         <item name="android:background">@color/app_shell_background</item>
         <item name="windowSplashScreenBackground">@color/app_shell_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_arflix</item>
-        <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/app_shell_background</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

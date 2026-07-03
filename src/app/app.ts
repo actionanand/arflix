@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthDialogComponent } from './components/auth-dialog/auth-dialog.component';
 import { BackToTopComponent } from './components/back-to-top/back-to-top.component';
+import { InstallBannerComponent } from './components/install-banner/install-banner.component';
 import { AuthService } from './services/auth.service';
 import { NavigationHistoryService } from './services/navigation-history.service';
 
@@ -12,7 +13,14 @@ interface CapacitorBridge {
 
 @Component({
   selector: 'app-root',
-  imports: [AuthDialogComponent, BackToTopComponent, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    AuthDialogComponent,
+    BackToTopComponent,
+    InstallBannerComponent,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
