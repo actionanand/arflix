@@ -106,6 +106,8 @@ jobs:
             convert "$ICON_SRC" -resize "${SIZE}x${SIZE}" \
               "android/app/src/main/res/$DIR/ic_launcher_foreground.png"
           done
+          mkdir -p android/app/src/main/res/drawable-nodpi
+          cp "$ICON_SRC" android/app/src/main/res/drawable-nodpi/ar_flix.png
           convert "$ICON_SRC" -resize 512x512 releases/playstore-icon.png
 
       - name: Auto-bump Android version code
