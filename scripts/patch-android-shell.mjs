@@ -9,12 +9,15 @@ const javaDir = join('android', 'app', 'src', 'main', 'java', packagePath);
 const mainActivityPath = join(javaDir, 'MainActivity.java');
 const manifestPath = join('android', 'app', 'src', 'main', 'AndroidManifest.xml');
 const valuesDir = join('android', 'app', 'src', 'main', 'res', 'values');
+const drawableDir = join('android', 'app', 'src', 'main', 'res', 'drawable');
 const colorsPath = join(valuesDir, 'colors.xml');
 const stylesPath = join(valuesDir, 'styles.xml');
+const splashIconPath = join(drawableDir, 'ic_splash_arflix.xml');
 
 assertAndroidProject();
 mkdirSync(javaDir, { recursive: true });
 mkdirSync(valuesDir, { recursive: true });
+mkdirSync(drawableDir, { recursive: true });
 
 writeFileSync(
   mainActivityPath,
@@ -279,6 +282,22 @@ writeFileSync(
 );
 
 writeFileSync(
+  splashIconPath,
+  `<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="54dp"
+        android:top="54dp"
+        android:right="54dp"
+        android:bottom="54dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ar_flix" />
+    </item>
+</layer-list>
+`,
+);
+
+writeFileSync(
   stylesPath,
   `<resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -301,7 +320,8 @@ writeFileSync(
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@color/app_shell_background</item>
         <item name="windowSplashScreenBackground">@color/app_shell_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_arflix</item>
+        <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>
