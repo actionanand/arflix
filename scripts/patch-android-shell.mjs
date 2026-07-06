@@ -308,6 +308,9 @@ writeFileSync(
     <color name="app_shell_bar">#07080c</color>
     <color name="app_shell_background">#07080c</color>
     <color name="app_shell_accent">#f7c948</color>
+    <color name="app_select_popup_background">#10131b</color>
+    <color name="app_select_popup_text">#f8fafc</color>
+    <color name="app_select_popup_text_secondary">#a8b3c7</color>
 </resources>
 `,
 );
@@ -339,12 +342,31 @@ writeFileSync(
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowBackground">@color/app_shell_background</item>
         <item name="android:colorAccent">@color/app_shell_accent</item>
+        <item name="android:colorControlNormal">@color/app_select_popup_text_secondary</item>
+        <item name="android:colorControlActivated">@color/app_shell_accent</item>
+        <item name="android:popupBackground">@color/app_select_popup_background</item>
+        <item name="android:textColorPrimary">@color/app_select_popup_text</item>
+        <item name="android:textColorSecondary">@color/app_select_popup_text_secondary</item>
+        <item name="alertDialogTheme">@style/AppTheme.SelectDialog</item>
+        <item name="android:alertDialogTheme">@style/AppTheme.SelectDialog</item>
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:enforceStatusBarContrast">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme" />
+
+    <style name="AppTheme.SelectDialog" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:windowBackground">@color/app_select_popup_background</item>
+        <item name="android:popupBackground">@color/app_select_popup_background</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:textColorPrimary">@color/app_select_popup_text</item>
+        <item name="android:textColorSecondary">@color/app_select_popup_text_secondary</item>
+        <item name="android:colorAccent">@color/app_shell_accent</item>
+        <item name="android:colorControlNormal">@color/app_select_popup_text_secondary</item>
+        <item name="android:colorControlActivated">@color/app_shell_accent</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@color/app_shell_background</item>
