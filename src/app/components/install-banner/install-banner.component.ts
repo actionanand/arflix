@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { Component, DestroyRef, afterNextRender, inject, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
@@ -14,15 +15,56 @@ function buildAppDeepLink(base: string, path: string): string {
   return `${trimmed}/${path}`;
 }
 
+export function buildPlayStoreLink(baseUrl: string, packageName: string): string {
+  const url = new URL(baseUrl);
+  url.searchParams.set('id', packageName);
+  return url.toString();
+}
+
+export function buildChromeIntentLink(
+  deepLink: string,
+  packageName: string,
+  fallbackUrl: string,
+): string {
+  const schemeSeparator = deepLink.indexOf('://');
+  if (schemeSeparator <= 0) return deepLink;
+
+  const scheme = deepLink.slice(0, schemeSeparator);
+  const target = deepLink.slice(schemeSeparator + 3);
+
+  return (
+    `intent://${target}#Intent;scheme=${scheme};package=${packageName};` +
+    `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
+  );
+}
+
+export function isAndroidChrome(userAgent: string): boolean {
+  return (
+    /android/i.test(userAgent) &&
+    /chrome\/\d+/i.test(userAgent) &&
+    !/(?:EdgA|OPR|SamsungBrowser|\bwv\b)/i.test(userAgent)
+  );
+}
+
 // Derived from the single source of truth in the environment file.
 const APP_DEEP_LINK = buildAppDeepLink(environment.androidDeepLinkBaseUrl, 'home');
+const PLAY_STORE_LINK = buildPlayStoreLink(
+  environment.androidPlayStoreBaseUrl,
+  environment.androidPackageName,
+);
+const APP_CHROME_INTENT_LINK = buildChromeIntentLink(
+  APP_DEEP_LINK,
+  environment.androidPackageName,
+  PLAY_STORE_LINK,
+);
 
 @Component({
   selector: 'app-install-banner',
+  imports: [NgOptimizedImage],
   template: `
     @if (visible()) {
       <div class="app-banner" role="region" aria-label="Open in the ARFlix Android app">
-        <img class="app-banner__logo" src="ar_flix.png" alt="" width="40" height="40" />
+        <img class="app-banner__logo" ngSrc="ar_flix.png" alt="" width="40" height="40" />
         <div class="app-banner__text">
           <strong>Open in the ARFlix app</strong>
           <span>Get a faster, full-screen experience on Android.</span>
@@ -148,8 +190,11 @@ export class InstallBannerComponent {
   }
 
   protected openApp(): void {
+    const target = isAndroidChrome(navigator.userAgent || '')
+      ? APP_CHROME_INTENT_LINK
+      : APP_DEEP_LINK;
     this.dismiss();
-    window.location.href = APP_DEEP_LINK;
+    window.location.href = target;
   }
 
   protected dismiss(): void {
