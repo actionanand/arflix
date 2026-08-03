@@ -8,7 +8,7 @@ Relevant files:
 - `src/app/components/install-banner/install-banner.component.ts` — the banner UI + logic.
 - `src/app/app.ts` / `app.html` — mounts `<app-install-banner />` in the shell.
 - `src/environments/environment.ts` / `environment.development.ts` — the single source for the deep
-  link base (`androidDeepLinkBaseUrl`).
+  link base, Android package name, and Play Store base URL.
 - `scripts/patch-android-shell.mjs` — generates the Android `AndroidManifest.xml` intent filters.
 
 ---
@@ -46,6 +46,8 @@ The scheme base lives once in the environment file:
 ```ts
 // src/environments/environment.ts
 androidDeepLinkBaseUrl: 'arflix://',
+androidPackageName: 'com.actionanand.arflix.app',
+androidPlayStoreBaseUrl: 'https://play.google.com/store/apps/details',
 ```
 
 The banner derives its target from it, so changing the environment updates every usage:
@@ -61,7 +63,9 @@ const APP_DEEP_LINK = buildAppDeepLink(environment.androidDeepLinkBaseUrl, 'home
 // -> 'arflix://home'
 ```
 
-Tapping **Open** simply runs `window.location.href = 'arflix://home'`.
+On Android Chrome, tapping **Open** uses an `intent://` link containing the app package, the
+`arflix://home` destination, and the Play Store URL as Chrome's browser fallback. Other Android
+browsers continue to use `arflix://home` directly.
 
 ### Real content deep links
 
@@ -113,12 +117,14 @@ Key points:
 
 ### "Open" when the app is not installed
 
-The web cannot reliably detect whether the app is installed. Tapping **Open** just attempts the
-`arflix://home` navigation:
+The web cannot reliably inspect whether the app is installed. Android Chrome resolves that state
+while handling the user-initiated `intent://` navigation:
 
 - **Installed:** Android launches the app.
-- **Not installed:** nothing visible happens (the browser cannot resolve the scheme). This is
-  acceptable for a side-loaded / non–Play-Store build.
+- **Not installed:** Chrome follows `browser_fallback_url` and opens ARFlix on Google Play.
+
+The fallback is encoded directly into the intent instead of using a JavaScript timer, avoiding an
+incorrect Play Store redirect on devices where the installed app takes slightly longer to open.
 
 ---
 
