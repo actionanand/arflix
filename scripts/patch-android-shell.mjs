@@ -8,6 +8,8 @@ const packagePath = packageName.replaceAll('.', '/');
 const javaDir = join('android', 'app', 'src', 'main', 'java', packagePath);
 const mainActivityPath = join(javaDir, 'MainActivity.java');
 const manifestPath = join('android', 'app', 'src', 'main', 'AndroidManifest.xml');
+const gradlePath = join('android', 'app', 'build.gradle');
+const proguardPath = join('android', 'app', 'proguard-rules.pro');
 const valuesDir = join('android', 'app', 'src', 'main', 'res', 'values');
 const drawableDir = join('android', 'app', 'src', 'main', 'res', 'drawable');
 const colorsPath = join(valuesDir, 'colors.xml');
@@ -329,6 +331,8 @@ if (existsSync(splashLogoSource)) {
   copyFileSync(splashLogoSource, splashLogoPath);
 }
 
+patchReleaseOptimization();
+
 writeFileSync(
   stylesPath,
   `<resources>
@@ -381,11 +385,51 @@ writeFileSync(
 
 patchAndroidManifest();
 
-console.log('Android shell patched with native ARFlix image saving, dark bars, and deep links.');
+console.log(
+  'Android shell patched with native ARFlix image saving, dark bars, deep links, and R8 optimization.',
+);
 
 function assertAndroidProject() {
   if (!existsSync(join('android', 'app'))) {
     throw new Error('Android project was not found. Run `npx cap add android` first.');
+  }
+}
+
+function patchReleaseOptimization() {
+  if (!existsSync(gradlePath)) {
+    throw new Error('Android app build.gradle was not found.');
+  }
+
+  const originalGradle = readFileSync(gradlePath, 'utf8');
+  let gradle = originalGradle
+    .replace(/minifyEnabled\s+false/, 'minifyEnabled true')
+    .replace(/proguard-android\.txt/g, 'proguard-android-optimize.txt');
+
+  if (!gradle.includes('minifyEnabled true')) {
+    throw new Error('Unable to enable R8 because the release minify setting was not found.');
+  }
+
+  if (!gradle.includes('shrinkResources true')) {
+    gradle = gradle.replace(
+      /minifyEnabled\s+true/,
+      'minifyEnabled true\n            shrinkResources true',
+    );
+  }
+
+  if (gradle !== originalGradle) {
+    writeFileSync(gradlePath, gradle);
+  }
+
+  const webViewKeepRules = `
+# ARFlix exposes these methods to the Angular WebView at runtime.
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+`;
+  const existingRules = existsSync(proguardPath) ? readFileSync(proguardPath, 'utf8') : '';
+
+  if (!existingRules.includes('@android.webkit.JavascriptInterface <methods>')) {
+    writeFileSync(proguardPath, `${existingRules.trimEnd()}${webViewKeepRules}`);
   }
 }
 
