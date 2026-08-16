@@ -1,0 +1,39 @@
+@if (confirmation.request(); as request) {
+  <div class="confirmation-overlay">
+    <button
+      type="button"
+      class="confirmation-overlay__scrim"
+      aria-label="Cancel deletion"
+      (click)="cancel()"
+    ></button>
+    <section
+      #dialog
+      class="confirmation-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirmation-title"
+      aria-describedby="confirmation-message"
+      (keydown)="keepFocusInside($event)"
+    >
+      <span class="confirmation-dialog__icon material-icons" aria-hidden="true">delete</span>
+      <div class="confirmation-dialog__copy">
+        <h2 id="confirmation-title">{{ request.title }}</h2>
+        <p id="confirmation-message">{{ request.message }}</p>
+      </div>
+      <div class="confirmation-dialog__actions">
+        <button
+          type="button"
+          class="confirmation-dialog__cancel"
+          data-initial-focus
+          (click)="confirmation.cancel()"
+        >
+          Cancel
+        </button>
+        <button type="button" class="confirmation-dialog__confirm" (click)="confirmation.confirm()">
+          <span class="material-icons" aria-hidden="true">delete</span>
+          {{ request.confirmLabel }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

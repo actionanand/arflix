@@ -10,7 +10,9 @@ import { NetworkHelpComponent } from '../../components/network-help/network-help
 import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
 import { ArDatePipe } from '../../pipes/ar-date.pipe';
 import { AuthService } from '../../services/auth.service';
+import { ConfirmationDialogService } from '../../services/confirmation-dialog.service';
 import { NavigationHistoryService } from '../../services/navigation-history.service';
+import { SnackbarService } from '../../services/snackbar.service';
 import { TmdbService } from '../../services/tmdb.service';
 import { WatchlistService } from '../../services/watchlist.service';
 
@@ -178,9 +180,6 @@ interface AndroidImageSaver {
             }
             <app-copy-link-menu [routePath]="shareRoutePath()" [routeId]="id()" />
           </div>
-          @if (watchlistMessage()) {
-            <p class="action-message" role="status">{{ watchlistMessage() }}</p>
-          }
         </div>
       </article>
 
@@ -375,7 +374,9 @@ interface AndroidImageSaver {
 export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
+  private readonly confirmation = inject(ConfirmationDialogService);
   private readonly navigationHistory = inject(NavigationHistoryService);
+  private readonly snackbar = inject(SnackbarService);
   private readonly watchlist = inject(WatchlistService);
   private readonly imageDownloadProxyBaseUrl = environment.imageDownloadProxyBaseUrl;
   protected readonly tmdb = inject(TmdbService);
@@ -384,7 +385,6 @@ export class DetailsComponent {
   protected readonly mediaTab = signal<'photos' | 'videos'>('photos');
   protected readonly selectedImage = signal<string | null>(null);
   protected readonly isDownloadingImage = signal(false);
-  protected readonly watchlistMessage = signal('');
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -545,27 +545,45 @@ export class DetailsComponent {
     return this.tmdb.profileUrl(path);
   }
 
-  protected toggleWatchlist(): void {
+  protected async toggleWatchlist(): Promise<void> {
     const item = this.watchlistItem();
     if (!item) return;
     const title = this.title();
 
+    if (this.isInWatchlist()) {
+      const confirmed = await this.confirmation.ask({
+        confirmLabel: 'Delete',
+        message: `${title} will be removed from the watchlist saved on this device.`,
+        title: 'Remove from watchlist?',
+      });
+      if (!confirmed) return;
+
+      try {
+        this.watchlist.remove(item.mediaType, item.id);
+        this.snackbar.show(`${title} was deleted from your watchlist.`);
+      } catch (error) {
+        this.snackbar.show(
+          error instanceof Error ? error.message : 'The watchlist could not be updated.',
+          'error',
+        );
+      }
+      return;
+    }
+
     try {
       const change = this.watchlist.toggle(item);
       if (change === 'limit') {
-        this.watchlistMessage.set(
+        this.snackbar.show(
           `Your watchlist can hold up to ${this.watchlist.maxItems} titles. Remove one before adding another.`,
+          'error',
         );
       } else {
-        this.watchlistMessage.set(
-          change === 'added'
-            ? `${title} was added to your watchlist.`
-            : `${title} was removed from your watchlist.`,
-        );
+        this.snackbar.show(`${title} was added to your watchlist.`);
       }
     } catch (error) {
-      this.watchlistMessage.set(
+      this.snackbar.show(
         error instanceof Error ? error.message : 'The watchlist could not be updated.',
+        'error',
       );
     }
   }

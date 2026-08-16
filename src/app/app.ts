@@ -3,7 +3,9 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 
 import { AuthDialogComponent } from './components/auth-dialog/auth-dialog.component';
 import { BackToTopComponent } from './components/back-to-top/back-to-top.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { InstallBannerComponent } from './components/install-banner/install-banner.component';
+import { SnackbarComponent } from './components/snackbar/snackbar.component';
 import { AuthService } from './services/auth.service';
 import { NavigationHistoryService } from './services/navigation-history.service';
 import { WatchlistService } from './services/watchlist.service';
@@ -29,10 +31,12 @@ const DEEP_LINK_TYPES = new Set(['movie', 'person', 'tv-show']);
   imports: [
     AuthDialogComponent,
     BackToTopComponent,
+    ConfirmationDialogComponent,
     InstallBannerComponent,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
+    SnackbarComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

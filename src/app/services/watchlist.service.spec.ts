@@ -39,6 +39,23 @@ describe('WatchlistService', () => {
     expect(service.isSaved('tv', 20)).toBe(true);
   });
 
+  it('removes multiple selected titles in one operation', () => {
+    const service = TestBed.inject(WatchlistService);
+    service.toggle(mediaItem(10, 'movie'));
+    service.toggle(mediaItem(20, 'tv'));
+    service.toggle(mediaItem(30, 'movie'));
+
+    expect(
+      service.removeMany([
+        { id: 10, mediaType: 'movie' },
+        { id: 20, mediaType: 'tv' },
+      ]),
+    ).toBe(2);
+    expect(service.isSaved('movie', 10)).toBe(false);
+    expect(service.isSaved('tv', 20)).toBe(false);
+    expect(service.isSaved('movie', 30)).toBe(true);
+  });
+
   it('stores and exports identifiers without image paths', () => {
     const service = TestBed.inject(WatchlistService);
     service.toggle(mediaItem(10, 'movie'));

@@ -5,8 +5,11 @@ series share one limit, configured with `watchlistMaxItems` in both environment 
 
 ## User flow
 
-- A title can be added or removed from its movie or TV detail page.
-- `/watchlist` displays saved titles and supports individual removal.
+- A title can be added or removed from its movie or TV detail page. Additions show a snackbar;
+  removals use the ARFlix confirmation dialog before showing deletion feedback.
+- `/watchlist` supports confirmed individual removal and multi-selection. Desktop users reveal the
+  selector by hovering or focusing a title. Touch users press and hold a title, then tap additional
+  titles. Selected titles are removed together in one storage update.
 - Logged-out and Family mode views follow the existing adult-content visibility rules.
 - Export creates an `arflix-watchlist-YYYY-MM-DD.json` backup.
 - Import validates the complete file and then replaces the local watchlist atomically.

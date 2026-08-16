@@ -81,13 +81,6 @@
   white-space: nowrap;
 }
 
-.watchlist-message {
-  padding: 0.8rem 0;
-  color: var(--accent);
-  font-weight: 800;
-  line-height: 1.45;
-}
-
 .watchlist-grid {
   padding: 0;
   margin: 1rem 0 0;
@@ -103,6 +96,167 @@
   min-width: 0;
   align-content: start;
   gap: 0.5rem;
+  touch-action: pan-y;
+}
+
+.watchlist-entry__card {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--radius);
+}
+
+.watchlist-entry__card app-media-card {
+  display: block;
+}
+
+.watchlist-entry.is-selected .watchlist-entry__card {
+  outline: 3px solid var(--accent);
+  outline-offset: 0.2rem;
+}
+
+.watchlist-selector,
+.watchlist-unavailable__selector {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: var(--text);
+  background: rgba(7, 8, 12, 0.92);
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
+.watchlist-selector {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.55rem;
+  z-index: 3;
+}
+
+.watchlist-selector.is-visible,
+.watchlist-selector:focus-visible,
+.watchlist-entry:hover .watchlist-selector,
+.watchlist-entry:focus-within .watchlist-selector,
+.watchlist-unavailable__selector.is-visible,
+.watchlist-unavailable__selector:focus-visible,
+.watchlist-unavailable li:hover .watchlist-unavailable__selector,
+.watchlist-unavailable li:focus-within .watchlist-unavailable__selector {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.watchlist-selector:hover,
+.watchlist-unavailable__selector:hover {
+  transform: scale(1.06);
+}
+
+.watchlist-selector[aria-pressed='true'],
+.watchlist-unavailable__selector[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: #151005;
+  background: var(--accent);
+}
+
+.watchlist-selector .material-icons,
+.watchlist-unavailable__selector .material-icons {
+  font-size: 1.45rem;
+}
+
+.watchlist-entry__tap-target {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  cursor: pointer;
+}
+
+.selection-help {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.85rem 0 0;
+  color: var(--subtle);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.selection-help .material-icons {
+  font-size: 1.05rem;
+}
+
+.selection-toolbar {
+  position: sticky;
+  top: 4.75rem;
+  z-index: 8;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.7rem;
+  margin-top: 0.85rem;
+  border: 1px solid rgba(247, 201, 72, 0.45);
+  border-radius: var(--radius);
+  background: rgba(17, 20, 29, 0.97);
+  box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(1rem);
+}
+
+.selection-toolbar p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.selection-toolbar p strong {
+  margin-right: 0.2rem;
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.selection-toolbar__actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.selection-toolbar button {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.76rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.selection-toolbar button:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.selection-toolbar button .material-icons {
+  font-size: 1rem;
+}
+
+.selection-toolbar .selection-toolbar__delete {
+  border-color: rgba(255, 138, 138, 0.56);
+  color: var(--danger);
+  background: rgba(255, 138, 138, 0.1);
 }
 
 .watchlist-remove {
@@ -165,6 +319,7 @@
 }
 
 .watchlist-unavailable li {
+  position: relative;
   display: flex;
   min-width: 0;
   align-items: center;
@@ -172,15 +327,30 @@
   gap: 0.75rem;
   padding: 0.7rem 0;
   border-bottom: 1px solid var(--line);
+  touch-action: pan-y;
+  transition: background 0.16s ease;
+}
+
+.watchlist-unavailable li.is-selected {
+  background: rgba(247, 201, 72, 0.08);
+}
+
+.watchlist-unavailable__selector {
+  flex: 0 0 auto;
 }
 
 .watchlist-unavailable li > span {
+  position: relative;
+  z-index: 2;
   min-width: 0;
   overflow-wrap: anywhere;
   font-weight: 800;
+  pointer-events: none;
 }
 
-.watchlist-unavailable button {
+.watchlist-unavailable
+  li
+  > button:not(.watchlist-unavailable__selector):not(.watchlist-unavailable__tap-target) {
   display: inline-flex;
   min-height: 2.75rem;
   flex: 0 0 auto;
@@ -193,6 +363,20 @@
   background: rgba(255, 255, 255, 0.06);
   font-weight: 800;
   cursor: pointer;
+}
+
+.watchlist-unavailable__tap-target {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.watchlist-unavailable__selector {
+  position: relative;
+  z-index: 3;
 }
 
 .watchlist-empty > .material-icons {
@@ -212,5 +396,23 @@
 
   .watchlist-backup__actions {
     grid-template-columns: repeat(2, auto);
+  }
+
+  .selection-help {
+    display: none;
+  }
+
+  .selection-toolbar {
+    grid-template-columns: minmax(8rem, 1fr) auto;
+    align-items: center;
+  }
+
+  .selection-toolbar__actions {
+    grid-template-columns: repeat(3, auto);
+  }
+
+  .selection-toolbar button {
+    padding-inline: 0.75rem;
+    font-size: 0.82rem;
   }
 }
