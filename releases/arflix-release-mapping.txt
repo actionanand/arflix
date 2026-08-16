@@ -3,8 +3,8 @@
 # min_api: 24
 # common_typos_disable
 # {"id":"com.android.tools.r8.mapping","version":"2.2"}
-# pg_map_id: ac110d03d3414246452c38020ccd36baa75d990e53a9db8d27bd74173adc04b1
-# pg_map_hash: SHA-256 ac110d03d3414246452c38020ccd36baa75d990e53a9db8d27bd74173adc04b1
+# pg_map_id: 2e040b83692664c4d8f04f598e5c6efa5b471aa68d561f0b2408175d9fcb6bb9
+# pg_map_hash: SHA-256 2e040b83692664c4d8f04f598e5c6efa5b471aa68d561f0b2408175d9fcb6bb9
 android.app.AppComponentFactory -> android.app.AppComponentFactory:
 # {"id":"com.android.tools.r8.synthesized"}
     void <clinit>() -> <clinit>
@@ -1671,7 +1671,7 @@ androidx.activity.ComponentActivity$$ExternalSyntheticLambda8 -> androidx.activi
     23:29:void com.getcapacitor.cordova.MockCordovaWebViewImpl$CapacitorEvalBridgeMode.lambda$onNativeToJsMessageAvailable$0(org.apache.cordova.NativeToJsMessageQueue):76:76 -> run
     23:29:void run():0 -> run
     30:39:void run():0:0 -> run
-    40:47:void com.actionanand.arflix.app.MainActivity.lambda$showToast$0(java.lang.String):274:274 -> run
+    40:47:void com.actionanand.arflix.app.MainActivity.lambda$showToast$0(java.lang.String):313:313 -> run
     40:47:void run():0 -> run
     48:51:void run():0:0 -> run
     52:55:void androidx.core.content.res.ResourcesCompat$FontCallback.lambda$callbackSuccessAsync$0(android.graphics.Typeface):471:471 -> run
@@ -35997,55 +35997,72 @@ androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader$$ExternalSyn
     18:23:void run():0 -> run
       # {"id":"com.android.tools.r8.synthesized"}
     24:35:void run():0:0 -> run
-    36:43:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):174:174 -> run
-    36:43:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    36:43:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):167:167 -> run
     36:43:void run():0 -> run
-    44:45:androidx.emoji2.text.EmojiCompat$MetadataRepoLoader androidx.emoji2.text.EmojiCompat$Config.getMetadataRepoLoader():1580:1580 -> run
-    44:45:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
-    44:45:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
-    44:45:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    44:45:void run():0 -> run
-    46:47:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148:148 -> run
-    46:47:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
-    46:47:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    46:47:void run():0 -> run
-    48:49:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):244:244 -> run
-    48:49:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
+    44:50:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):168:168 -> run
+    44:50:void run():0 -> run
+    51:55:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):169:169 -> run
+    51:55:void run():0 -> run
+    56:60:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):170:170 -> run
+    56:60:void run():0 -> run
+    61:64:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):171:171 -> run
+    61:64:void run():0 -> run
+    65:72:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):173:173 -> run
+    65:72:void run():0 -> run
+    73:77:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):171:171 -> run
+    73:77:void run():0 -> run
+    78:81:void com.actionanand.arflix.app.MainActivity$AndroidImageSaver.lambda$exportBackupJson$0(java.lang.String,java.lang.String):175:175 -> run
+    78:81:void run():0 -> run
+    82:93:void run():0:0 -> run
+    94:101:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):174:174 -> run
+    94:101:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    94:101:void run():0 -> run
+    102:103:androidx.emoji2.text.EmojiCompat$MetadataRepoLoader androidx.emoji2.text.EmojiCompat$Config.getMetadataRepoLoader():1580:1580 -> run
+    102:103:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
+    102:103:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
+    102:103:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    102:103:void run():0 -> run
+    104:105:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148:148 -> run
+    104:105:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
+    104:105:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    104:105:void run():0 -> run
+    106:107:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):244:244 -> run
+    106:107:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
       # {"id":"com.android.tools.r8.rewriteFrame","conditions":["throws(Ljava/lang/NullPointerException;)"],"actions":["removeInnerFrames(1)"]}
-    48:49:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
-    48:49:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    48:49:void run():0 -> run
-    50:51:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):244:245 -> run
-    50:51:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
-    50:51:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
-    50:51:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    50:51:void run():0 -> run
-    52:53:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):245:246 -> run
-    52:53:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
-    52:53:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
-    52:53:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    52:53:void run():0 -> run
-    54:55:androidx.emoji2.text.EmojiCompat$MetadataRepoLoader androidx.emoji2.text.EmojiCompat$Config.getMetadataRepoLoader():1580:1580 -> run
-    54:55:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):180 -> run
-    54:55:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    54:55:void run():0 -> run
-    56:67:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):180:180 -> run
-    56:67:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    56:67:void run():0 -> run
-    68:69:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):246:246 -> run
-    68:69:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
-    68:69:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
-    68:69:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    68:69:void run():0 -> run
-    70:77:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):176:176 -> run
-    70:77:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    70:77:void run():0 -> run
-    78:80:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):202:202 -> run
-    78:80:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    78:80:void run():0 -> run
-    81:84:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):203:203 -> run
-    81:84:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
-    81:84:void run():0 -> run
+    106:107:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
+    106:107:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    106:107:void run():0 -> run
+    108:109:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):244:245 -> run
+    108:109:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
+    108:109:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
+    108:109:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    108:109:void run():0 -> run
+    110:111:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):245:246 -> run
+    110:111:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
+    110:111:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
+    110:111:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    110:111:void run():0 -> run
+    112:113:androidx.emoji2.text.EmojiCompat$MetadataRepoLoader androidx.emoji2.text.EmojiCompat$Config.getMetadataRepoLoader():1580:1580 -> run
+    112:113:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):180 -> run
+    112:113:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    112:113:void run():0 -> run
+    114:125:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):180:180 -> run
+    114:125:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    114:125:void run():0 -> run
+    126:127:void androidx.emoji2.text.FontRequestEmojiCompatConfig$FontRequestMetadataLoader.setExecutor(java.util.concurrent.Executor):246:246 -> run
+    126:127:androidx.emoji2.text.FontRequestEmojiCompatConfig androidx.emoji2.text.FontRequestEmojiCompatConfig.setLoadingExecutor(java.util.concurrent.Executor):148 -> run
+    126:127:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):179 -> run
+    126:127:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    126:127:void run():0 -> run
+    128:135:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):176:176 -> run
+    128:135:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    128:135:void run():0 -> run
+    136:138:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):202:202 -> run
+    136:138:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    136:138:void run():0 -> run
+    139:142:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.doLoad(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):203:203 -> run
+    139:142:void androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader.lambda$load$0(androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback,java.util.concurrent.ThreadPoolExecutor):167 -> run
+    139:142:void run():0 -> run
 androidx.emoji2.text.EmojiCompatInitializer$BackgroundDefaultLoader$1 -> androidx.emoji2.text.o:
 # {"id":"sourceFile","fileName":"EmojiCompatInitializer.java"}
     androidx.emoji2.text.EmojiCompat$MetadataRepoLoaderCallback val$loaderCallback -> m
@@ -44277,214 +44294,223 @@ androidx.webkit.internal.WebViewProviderFactoryAdapter -> u0.p:
     9:17:org.chromium.support_lib_boundary.StaticsBoundaryInterface getStatics():87:87 -> getStatics
 com.actionanand.arflix.app.MainActivity -> com.actionanand.arflix.app.MainActivity:
 # {"id":"sourceFile","fileName":"MainActivity.java"}
-    int SHELL_BAR_COLOR -> D
-    java.lang.String pendingDeepLink -> E
-    1:8:void <clinit>():32:32 -> <clinit>
-    9:13:void <clinit>():33:33 -> <clinit>
-    1:4:void <init>():31:31 -> <init>
-    2:11:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):186:186 -> n
+    java.lang.String pendingBackupJson -> D
+    int SHELL_BAR_COLOR -> E
+    java.lang.String pendingDeepLink -> F
+    1:8:void <clinit>():34:34 -> <clinit>
+    9:13:void <clinit>():36:36 -> <clinit>
+    1:3:void <init>():33:33 -> <init>
+    4:8:void <init>():37:37 -> <init>
+    2:11:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):225:225 -> n
       # {"id":"com.android.tools.r8.residualsignature","signature":"(Lcom/actionanand/arflix/app/MainActivity;[BLjava/lang/String;Ljava/lang/String;)Z"}
-    12:22:java.lang.String extensionForMimeType(java.lang.String):256:256 -> n
-    12:22:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):187 -> n
-    23:33:java.lang.String extensionForMimeType(java.lang.String):257:257 -> n
-    23:33:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):187 -> n
-    34:37:java.lang.String extensionForMimeType(java.lang.String):258:258 -> n
-    34:37:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):187 -> n
-    38:44:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):229:229 -> n
-    38:44:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):187 -> n
-    45:53:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):231:231 -> n
-    45:53:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):187 -> n
-    54:59:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):230:230 -> n
-    54:59:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):187 -> n
-    60:74:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):232:232 -> n
-    60:74:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):187 -> n
-    75:79:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):189:189 -> n
-    80:84:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):190:190 -> n
-    85:89:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):191:191 -> n
-    90:105:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):192:192 -> n
-    106:118:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):193:193 -> n
-    119:127:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):195:195 -> n
-    128:151:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):196:196 -> n
-    152:158:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):200:200 -> n
-    159:171:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):203:203 -> n
-    172:182:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):206:206 -> n
-    183:191:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):208:208 -> n
-    192:197:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):212:212 -> n
-    198:200:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):211:211 -> n
-    201:205:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):212:212 -> n
-    206:210:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):215:215 -> n
-    211:217:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):216:216 -> n
-    218:224:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):217:217 -> n
-    225:226:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):220:220 -> n
-    227:238:void showToast(java.lang.String):274:274 -> n
-    227:238:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):220 -> n
-    239:247:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):206:206 -> n
-    248:259:void showToast(java.lang.String):274:274 -> n
-    248:259:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):223 -> n
-    1:4:void tintSystemBars():98:98 -> o
-    5:10:void tintSystemBars():99:99 -> o
-    11:15:void tintSystemBars():100:100 -> o
-    16:20:void tintSystemBars():102:102 -> o
-    21:23:void tintSystemBars():106:106 -> o
-    24:28:void tintSystemBars():107:107 -> o
-    29:31:void tintSystemBars():108:108 -> o
-    32:35:void tintSystemBars():111:111 -> o
-    36:47:void tintSystemBars():112:112 -> o
-    48:52:void tintSystemBars():120:120 -> o
-    53:58:void tintSystemBars():123:123 -> o
-    59:62:void tintSystemBars():125:125 -> o
-    63:66:void tintSystemBars():126:126 -> o
+    12:22:java.lang.String extensionForMimeType(java.lang.String):295:295 -> n
+    12:22:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):226 -> n
+    23:33:java.lang.String extensionForMimeType(java.lang.String):296:296 -> n
+    23:33:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):226 -> n
+    34:37:java.lang.String extensionForMimeType(java.lang.String):297:297 -> n
+    34:37:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):226 -> n
+    38:44:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):268:268 -> n
+    38:44:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):226 -> n
+    45:53:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):270:270 -> n
+    45:53:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):226 -> n
+    54:59:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):269:269 -> n
+    54:59:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):226 -> n
+    60:74:java.lang.String sanitizeFileName(java.lang.String,java.lang.String):271:271 -> n
+    60:74:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):226 -> n
+    75:79:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):228:228 -> n
+    80:84:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):229:229 -> n
+    85:89:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):230:230 -> n
+    90:105:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):231:231 -> n
+    106:118:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):232:232 -> n
+    119:127:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):234:234 -> n
+    128:151:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):235:235 -> n
+    152:158:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):239:239 -> n
+    159:171:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):242:242 -> n
+    172:182:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):245:245 -> n
+    183:191:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):247:247 -> n
+    192:197:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):251:251 -> n
+    198:200:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):250:250 -> n
+    201:205:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):251:251 -> n
+    206:210:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):254:254 -> n
+    211:217:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):255:255 -> n
+    218:224:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):256:256 -> n
+    225:232:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):259:259 -> n
+    233:241:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):245:245 -> n
+    242:247:boolean saveImageBytes(byte[],java.lang.String,java.lang.String):262:262 -> n
+    1:10:void showToast(java.lang.String):313:313 -> o
+    1:8:void onActivityResult(int,int,android.content.Intent):58:58 -> onActivityResult
+    9:10:void onActivityResult(int,int,android.content.Intent):61:61 -> onActivityResult
+    11:19:void onActivityResult(int,int,android.content.Intent):62:62 -> onActivityResult
+    20:26:void onActivityResult(int,int,android.content.Intent):63:63 -> onActivityResult
+    27:30:void onActivityResult(int,int,android.content.Intent):65:65 -> onActivityResult
+    31:42:void onActivityResult(int,int,android.content.Intent):66:66 -> onActivityResult
+    43:46:void onActivityResult(int,int,android.content.Intent):71:71 -> onActivityResult
+    47:55:void onActivityResult(int,int,android.content.Intent):68:68 -> onActivityResult
+    56:58:void onActivityResult(int,int,android.content.Intent):69:69 -> onActivityResult
+    59:65:void onActivityResult(int,int,android.content.Intent):70:70 -> onActivityResult
+    66:74:void onActivityResult(int,int,android.content.Intent):66:66 -> onActivityResult
+    75:80:void onActivityResult(int,int,android.content.Intent):72:72 -> onActivityResult
     1:5:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):705:705 -> onCreate
-    1:5:void onCreate(android.os.Bundle):37 -> onCreate
+    1:5:void onCreate(android.os.Bundle):41 -> onCreate
     6:7:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):706:706 -> onCreate
-    6:7:void onCreate(android.os.Bundle):37 -> onCreate
+    6:7:void onCreate(android.os.Bundle):41 -> onCreate
     8:10:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1127:1127 -> onCreate
     8:10:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    8:10:void onCreate(android.os.Bundle):37 -> onCreate
+    8:10:void onCreate(android.os.Bundle):41 -> onCreate
     11:15:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1128:1128 -> onCreate
     11:15:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    11:15:void onCreate(android.os.Bundle):37 -> onCreate
+    11:15:void onCreate(android.os.Bundle):41 -> onCreate
     16:20:java.util.Iterator androidx.collection.ArraySet.iterator():249:249 -> onCreate
     16:20:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1128 -> onCreate
     16:20:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    16:20:void onCreate(android.os.Bundle):37 -> onCreate
+    16:20:void onCreate(android.os.Bundle):41 -> onCreate
     21:32:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1128:1128 -> onCreate
     21:32:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    21:32:void onCreate(android.os.Bundle):37 -> onCreate
+    21:32:void onCreate(android.os.Bundle):41 -> onCreate
     33:40:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1129:1129 -> onCreate
     33:40:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    33:40:void onCreate(android.os.Bundle):37 -> onCreate
+    33:40:void onCreate(android.os.Bundle):41 -> onCreate
     41:42:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1134:1134 -> onCreate
     41:42:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    41:42:void onCreate(android.os.Bundle):37 -> onCreate
+    41:42:void onCreate(android.os.Bundle):41 -> onCreate
     43:48:boolean androidx.appcompat.app.AppCompatDelegateImpl.applyApplicationSpecificConfig(boolean):2498:2498 -> onCreate
     43:48:boolean androidx.appcompat.app.AppCompatDelegateImpl.applyDayNight():2477 -> onCreate
     43:48:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1134 -> onCreate
     43:48:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    43:48:void onCreate(android.os.Bundle):37 -> onCreate
+    43:48:void onCreate(android.os.Bundle):41 -> onCreate
     49:52:void androidx.appcompat.app.AppCompatDelegate.applyDayNightToActiveDelegates():1137:1137 -> onCreate
     49:52:void androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(int):707 -> onCreate
-    49:52:void onCreate(android.os.Bundle):37 -> onCreate
-    53:56:void onCreate(android.os.Bundle):38:38 -> onCreate
+    49:52:void onCreate(android.os.Bundle):41 -> onCreate
+    53:56:void onCreate(android.os.Bundle):42:42 -> onCreate
     57:61:void storeDeepLink(android.content.Intent):0:0 -> onCreate
-    57:61:void onCreate(android.os.Bundle):38 -> onCreate
-    62:63:void storeDeepLink(android.content.Intent):53:53 -> onCreate
-    62:63:void onCreate(android.os.Bundle):38 -> onCreate
-    64:69:void storeDeepLink(android.content.Intent):54:54 -> onCreate
-    64:69:void onCreate(android.os.Bundle):38 -> onCreate
-    70:78:void storeDeepLink(android.content.Intent):56:56 -> onCreate
-    70:78:void onCreate(android.os.Bundle):38 -> onCreate
-    79:79:void storeDeepLink(android.content.Intent):58:58 -> onCreate
-    79:79:void onCreate(android.os.Bundle):38 -> onCreate
-    80:82:void onCreate(android.os.Bundle):39:39 -> onCreate
+    57:61:void onCreate(android.os.Bundle):42 -> onCreate
+    62:63:void storeDeepLink(android.content.Intent):77:77 -> onCreate
+    62:63:void onCreate(android.os.Bundle):42 -> onCreate
+    64:69:void storeDeepLink(android.content.Intent):78:78 -> onCreate
+    64:69:void onCreate(android.os.Bundle):42 -> onCreate
+    70:78:void storeDeepLink(android.content.Intent):80:80 -> onCreate
+    70:78:void onCreate(android.os.Bundle):42 -> onCreate
+    79:79:void storeDeepLink(android.content.Intent):82:82 -> onCreate
+    79:79:void onCreate(android.os.Bundle):42 -> onCreate
+    80:82:void onCreate(android.os.Bundle):43:43 -> onCreate
     83:87:com.getcapacitor.Bridge com.getcapacitor.BridgeActivity.getBridge():63:63 -> onCreate
-    83:87:void disableWebViewDarkening():85 -> onCreate
-    83:87:void onCreate(android.os.Bundle):40 -> onCreate
+    83:87:void disableWebViewDarkening():109 -> onCreate
+    83:87:void onCreate(android.os.Bundle):44 -> onCreate
     88:94:android.webkit.WebView com.getcapacitor.Bridge.getWebView():512:512 -> onCreate
-    88:94:void disableWebViewDarkening():85 -> onCreate
+    88:94:void disableWebViewDarkening():109 -> onCreate
       # {"id":"com.android.tools.r8.rewriteFrame","conditions":["throws(Ljava/lang/NullPointerException;)"],"actions":["removeInnerFrames(1)"]}
-    88:94:void onCreate(android.os.Bundle):40 -> onCreate
-    95:98:void disableWebViewDarkening():88:88 -> onCreate
-    95:98:void onCreate(android.os.Bundle):40 -> onCreate
-    99:104:void disableWebViewDarkening():89:89 -> onCreate
-    99:104:void onCreate(android.os.Bundle):40 -> onCreate
-    105:111:void disableWebViewDarkening():90:90 -> onCreate
-    105:111:void onCreate(android.os.Bundle):40 -> onCreate
-    112:114:void disableWebViewDarkening():93:93 -> onCreate
-    112:114:void onCreate(android.os.Bundle):40 -> onCreate
+    88:94:void onCreate(android.os.Bundle):44 -> onCreate
+    95:98:void disableWebViewDarkening():112:112 -> onCreate
+    95:98:void onCreate(android.os.Bundle):44 -> onCreate
+    99:104:void disableWebViewDarkening():113:113 -> onCreate
+    99:104:void onCreate(android.os.Bundle):44 -> onCreate
+    105:111:void disableWebViewDarkening():114:114 -> onCreate
+    105:111:void onCreate(android.os.Bundle):44 -> onCreate
+    112:114:void disableWebViewDarkening():117:117 -> onCreate
+    112:114:void onCreate(android.os.Bundle):44 -> onCreate
     115:118:com.getcapacitor.Bridge com.getcapacitor.BridgeActivity.getBridge():63:63 -> onCreate
-    115:118:void attachAndroidBridge():79 -> onCreate
-    115:118:void onCreate(android.os.Bundle):41 -> onCreate
+    115:118:void attachAndroidBridge():103 -> onCreate
+    115:118:void onCreate(android.os.Bundle):45 -> onCreate
     119:123:android.webkit.WebView com.getcapacitor.Bridge.getWebView():512:512 -> onCreate
-    119:123:void attachAndroidBridge():79 -> onCreate
+    119:123:void attachAndroidBridge():103 -> onCreate
       # {"id":"com.android.tools.r8.rewriteFrame","conditions":["throws(Ljava/lang/NullPointerException;)"],"actions":["removeInnerFrames(1)"]}
-    119:123:void onCreate(android.os.Bundle):41 -> onCreate
-    124:133:void attachAndroidBridge():81:81 -> onCreate
-    124:133:void onCreate(android.os.Bundle):41 -> onCreate
-    134:137:void onCreate(android.os.Bundle):42:42 -> onCreate
-    138:139:void storeDeepLink(android.content.Intent):58:58 -> onCreate
-    138:139:void onCreate(android.os.Bundle):38 -> onCreate
-    1:3:void onNewIntent(android.content.Intent):47:47 -> onNewIntent
-    4:6:void onNewIntent(android.content.Intent):48:48 -> onNewIntent
+    119:123:void onCreate(android.os.Bundle):45 -> onCreate
+    124:133:void attachAndroidBridge():105:105 -> onCreate
+    124:133:void onCreate(android.os.Bundle):45 -> onCreate
+    134:137:void onCreate(android.os.Bundle):46:46 -> onCreate
+    138:139:void storeDeepLink(android.content.Intent):82:82 -> onCreate
+    138:139:void onCreate(android.os.Bundle):42 -> onCreate
+    1:3:void onNewIntent(android.content.Intent):51:51 -> onNewIntent
+    4:6:void onNewIntent(android.content.Intent):52:52 -> onNewIntent
     7:9:void storeDeepLink(android.content.Intent):0:0 -> onNewIntent
-    7:9:void onNewIntent(android.content.Intent):49 -> onNewIntent
-    10:15:void storeDeepLink(android.content.Intent):54:54 -> onNewIntent
-    10:15:void onNewIntent(android.content.Intent):49 -> onNewIntent
-    16:24:void storeDeepLink(android.content.Intent):56:56 -> onNewIntent
-    16:24:void onNewIntent(android.content.Intent):49 -> onNewIntent
-    25:28:void storeDeepLink(android.content.Intent):58:58 -> onNewIntent
-    25:28:void onNewIntent(android.content.Intent):49 -> onNewIntent
-    1:3:void onResume():68:68 -> onResume
-    4:7:void onResume():69:69 -> onResume
-    1:3:void onWindowFocusChanged(boolean):74:74 -> onWindowFocusChanged
-    4:7:void onWindowFocusChanged(boolean):75:75 -> onWindowFocusChanged
+    7:9:void onNewIntent(android.content.Intent):53 -> onNewIntent
+    10:15:void storeDeepLink(android.content.Intent):78:78 -> onNewIntent
+    10:15:void onNewIntent(android.content.Intent):53 -> onNewIntent
+    16:24:void storeDeepLink(android.content.Intent):80:80 -> onNewIntent
+    16:24:void onNewIntent(android.content.Intent):53 -> onNewIntent
+    25:28:void storeDeepLink(android.content.Intent):82:82 -> onNewIntent
+    25:28:void onNewIntent(android.content.Intent):53 -> onNewIntent
+    1:3:void onResume():92:92 -> onResume
+    4:7:void onResume():93:93 -> onResume
+    1:3:void onWindowFocusChanged(boolean):98:98 -> onWindowFocusChanged
+    4:7:void onWindowFocusChanged(boolean):99:99 -> onWindowFocusChanged
+    1:4:void tintSystemBars():122:122 -> p
+    5:10:void tintSystemBars():123:123 -> p
+    11:15:void tintSystemBars():124:124 -> p
+    16:20:void tintSystemBars():126:126 -> p
+    21:23:void tintSystemBars():130:130 -> p
+    24:28:void tintSystemBars():131:131 -> p
+    29:31:void tintSystemBars():132:132 -> p
+    32:35:void tintSystemBars():135:135 -> p
+    36:47:void tintSystemBars():136:136 -> p
+    48:52:void tintSystemBars():144:144 -> p
+    53:58:void tintSystemBars():147:147 -> p
+    59:62:void tintSystemBars():149:149 -> p
+    63:66:void tintSystemBars():150:150 -> p
 com.actionanand.arflix.app.MainActivity$AndroidImageSaver -> v0.a:
 # {"id":"sourceFile","fileName":"MainActivity.java"}
     com.actionanand.arflix.app.MainActivity this$0 -> a
-    1:6:void <init>(com.actionanand.arflix.app.MainActivity):134:134 -> <init>
-    1:2:java.lang.String consumeDeepLink():137:137 -> consumeDeepLink
+    1:6:void <init>(com.actionanand.arflix.app.MainActivity):158:158 -> <init>
+    1:2:java.lang.String consumeDeepLink():161:161 -> consumeDeepLink
     3:5:java.lang.String com.actionanand.arflix.app.MainActivity.consumePendingDeepLink():0:0 -> consumeDeepLink
-    3:5:java.lang.String consumeDeepLink():137 -> consumeDeepLink
-    6:14:java.lang.String com.actionanand.arflix.app.MainActivity.consumePendingDeepLink():61:61 -> consumeDeepLink
-    6:14:java.lang.String consumeDeepLink():137 -> consumeDeepLink
-    15:18:java.lang.String com.actionanand.arflix.app.MainActivity.consumePendingDeepLink():62:62 -> consumeDeepLink
-    15:18:java.lang.String consumeDeepLink():137 -> consumeDeepLink
-    19:22:java.lang.String com.actionanand.arflix.app.MainActivity.consumePendingDeepLink():63:63 -> consumeDeepLink
-    19:22:java.lang.String consumeDeepLink():137 -> consumeDeepLink
-    1:14:boolean saveImage(java.lang.String,java.lang.String):166:166 -> saveImage
-    15:22:boolean saveImage(java.lang.String,java.lang.String):169:169 -> saveImage
-    23:28:boolean saveImage(java.lang.String,java.lang.String):171:171 -> saveImage
-    29:32:boolean saveImage(java.lang.String,java.lang.String):174:174 -> saveImage
-    33:34:boolean saveImage(java.lang.String,java.lang.String):175:175 -> saveImage
-    35:42:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):236:236 -> saveImage
-    35:42:boolean saveImage(java.lang.String,java.lang.String):175 -> saveImage
-    43:45:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):237:237 -> saveImage
-    43:45:boolean saveImage(java.lang.String,java.lang.String):175 -> saveImage
-    46:53:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):239:239 -> saveImage
-    46:53:boolean saveImage(java.lang.String,java.lang.String):175 -> saveImage
-    54:56:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):240:240 -> saveImage
-    54:56:boolean saveImage(java.lang.String,java.lang.String):175 -> saveImage
-    57:58:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):242:242 -> saveImage
-    57:58:boolean saveImage(java.lang.String,java.lang.String):175 -> saveImage
-    59:63:boolean saveImage(java.lang.String,java.lang.String):176:176 -> saveImage
-    64:65:boolean saveImage(java.lang.String,java.lang.String):178:178 -> saveImage
-    66:77:void com.actionanand.arflix.app.MainActivity.showToast(java.lang.String):274:274 -> saveImage
-    66:77:boolean saveImage(java.lang.String,java.lang.String):178 -> saveImage
-    1:13:boolean saveImageFromUrl(java.lang.String,java.lang.String):143:143 -> saveImageFromUrl
-    14:24:boolean saveImageFromUrl(java.lang.String,java.lang.String):145:145 -> saveImageFromUrl
-    25:29:boolean saveImageFromUrl(java.lang.String,java.lang.String):146:146 -> saveImageFromUrl
-    30:32:boolean saveImageFromUrl(java.lang.String,java.lang.String):147:147 -> saveImageFromUrl
-    33:38:boolean saveImageFromUrl(java.lang.String,java.lang.String):149:149 -> saveImageFromUrl
-    39:46:boolean saveImageFromUrl(java.lang.String,java.lang.String):150:150 -> saveImageFromUrl
-    47:48:boolean saveImageFromUrl(java.lang.String,java.lang.String):151:151 -> saveImageFromUrl
-    49:60:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):246:246 -> saveImageFromUrl
-    49:60:boolean saveImageFromUrl(java.lang.String,java.lang.String):151 -> saveImageFromUrl
-    61:64:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):247:247 -> saveImageFromUrl
-    61:64:boolean saveImageFromUrl(java.lang.String,java.lang.String):151 -> saveImageFromUrl
-    65:76:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):249:249 -> saveImageFromUrl
-    65:76:boolean saveImageFromUrl(java.lang.String,java.lang.String):151 -> saveImageFromUrl
-    77:79:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):250:250 -> saveImageFromUrl
-    77:79:boolean saveImageFromUrl(java.lang.String,java.lang.String):151 -> saveImageFromUrl
-    80:82:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):252:252 -> saveImageFromUrl
-    80:82:boolean saveImageFromUrl(java.lang.String,java.lang.String):151 -> saveImageFromUrl
-    83:86:boolean saveImageFromUrl(java.lang.String,java.lang.String):154:154 -> saveImageFromUrl
-    87:88:boolean saveImageFromUrl(java.lang.String,java.lang.String):155:155 -> saveImageFromUrl
-    89:95:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):262:262 -> saveImageFromUrl
-    89:95:boolean saveImageFromUrl(java.lang.String,java.lang.String):155 -> saveImageFromUrl
-    96:97:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):263:263 -> saveImageFromUrl
-    96:97:boolean saveImageFromUrl(java.lang.String,java.lang.String):155 -> saveImageFromUrl
-    98:104:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):266:266 -> saveImageFromUrl
-    98:104:boolean saveImageFromUrl(java.lang.String,java.lang.String):155 -> saveImageFromUrl
-    105:108:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):267:267 -> saveImageFromUrl
-    105:108:boolean saveImageFromUrl(java.lang.String,java.lang.String):155 -> saveImageFromUrl
-    109:112:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):270:270 -> saveImageFromUrl
-    109:112:boolean saveImageFromUrl(java.lang.String,java.lang.String):155 -> saveImageFromUrl
-    113:116:boolean saveImageFromUrl(java.lang.String,java.lang.String):155:155 -> saveImageFromUrl
-    117:123:boolean saveImageFromUrl(java.lang.String,java.lang.String):156:156 -> saveImageFromUrl
-    124:132:boolean saveImageFromUrl(java.lang.String,java.lang.String):154:154 -> saveImageFromUrl
-    133:134:boolean saveImageFromUrl(java.lang.String,java.lang.String):158:158 -> saveImageFromUrl
-    135:146:void com.actionanand.arflix.app.MainActivity.showToast(java.lang.String):274:274 -> saveImageFromUrl
-    135:146:boolean saveImageFromUrl(java.lang.String,java.lang.String):158 -> saveImageFromUrl
+    3:5:java.lang.String consumeDeepLink():161 -> consumeDeepLink
+    6:14:java.lang.String com.actionanand.arflix.app.MainActivity.consumePendingDeepLink():85:85 -> consumeDeepLink
+    6:14:java.lang.String consumeDeepLink():161 -> consumeDeepLink
+    15:18:java.lang.String com.actionanand.arflix.app.MainActivity.consumePendingDeepLink():86:86 -> consumeDeepLink
+    15:18:java.lang.String consumeDeepLink():161 -> consumeDeepLink
+    19:22:java.lang.String com.actionanand.arflix.app.MainActivity.consumePendingDeepLink():87:87 -> consumeDeepLink
+    19:22:java.lang.String consumeDeepLink():161 -> consumeDeepLink
+    1:12:void exportBackupJson(java.lang.String,java.lang.String):166:166 -> exportBackupJson
+    1:14:boolean saveImage(java.lang.String,java.lang.String):205:205 -> saveImage
+    15:22:boolean saveImage(java.lang.String,java.lang.String):208:208 -> saveImage
+    23:28:boolean saveImage(java.lang.String,java.lang.String):210:210 -> saveImage
+    29:32:boolean saveImage(java.lang.String,java.lang.String):213:213 -> saveImage
+    33:37:boolean saveImage(java.lang.String,java.lang.String):214:214 -> saveImage
+    38:45:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):275:275 -> saveImage
+    38:45:boolean saveImage(java.lang.String,java.lang.String):214 -> saveImage
+    46:48:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):276:276 -> saveImage
+    46:48:boolean saveImage(java.lang.String,java.lang.String):214 -> saveImage
+    49:56:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):278:278 -> saveImage
+    49:56:boolean saveImage(java.lang.String,java.lang.String):214 -> saveImage
+    57:59:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):279:279 -> saveImage
+    57:59:boolean saveImage(java.lang.String,java.lang.String):214 -> saveImage
+    60:61:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromDataUrl(java.lang.String):281:281 -> saveImage
+    60:61:boolean saveImage(java.lang.String,java.lang.String):214 -> saveImage
+    62:66:boolean saveImage(java.lang.String,java.lang.String):215:215 -> saveImage
+    67:74:boolean saveImage(java.lang.String,java.lang.String):217:217 -> saveImage
+    1:13:boolean saveImageFromUrl(java.lang.String,java.lang.String):182:182 -> saveImageFromUrl
+    14:24:boolean saveImageFromUrl(java.lang.String,java.lang.String):184:184 -> saveImageFromUrl
+    25:29:boolean saveImageFromUrl(java.lang.String,java.lang.String):185:185 -> saveImageFromUrl
+    30:32:boolean saveImageFromUrl(java.lang.String,java.lang.String):186:186 -> saveImageFromUrl
+    33:38:boolean saveImageFromUrl(java.lang.String,java.lang.String):188:188 -> saveImageFromUrl
+    39:46:boolean saveImageFromUrl(java.lang.String,java.lang.String):189:189 -> saveImageFromUrl
+    47:51:boolean saveImageFromUrl(java.lang.String,java.lang.String):190:190 -> saveImageFromUrl
+    52:63:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):285:285 -> saveImageFromUrl
+    52:63:boolean saveImageFromUrl(java.lang.String,java.lang.String):190 -> saveImageFromUrl
+    64:67:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):286:286 -> saveImageFromUrl
+    64:67:boolean saveImageFromUrl(java.lang.String,java.lang.String):190 -> saveImageFromUrl
+    68:79:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):288:288 -> saveImageFromUrl
+    68:79:boolean saveImageFromUrl(java.lang.String,java.lang.String):190 -> saveImageFromUrl
+    80:82:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):289:289 -> saveImageFromUrl
+    80:82:boolean saveImageFromUrl(java.lang.String,java.lang.String):190 -> saveImageFromUrl
+    83:85:java.lang.String com.actionanand.arflix.app.MainActivity.mimeTypeFromUrl(java.lang.String):291:291 -> saveImageFromUrl
+    83:85:boolean saveImageFromUrl(java.lang.String,java.lang.String):190 -> saveImageFromUrl
+    86:89:boolean saveImageFromUrl(java.lang.String,java.lang.String):193:193 -> saveImageFromUrl
+    90:94:boolean saveImageFromUrl(java.lang.String,java.lang.String):194:194 -> saveImageFromUrl
+    95:101:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):301:301 -> saveImageFromUrl
+    95:101:boolean saveImageFromUrl(java.lang.String,java.lang.String):194 -> saveImageFromUrl
+    102:103:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):302:302 -> saveImageFromUrl
+    102:103:boolean saveImageFromUrl(java.lang.String,java.lang.String):194 -> saveImageFromUrl
+    104:110:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):305:305 -> saveImageFromUrl
+    104:110:boolean saveImageFromUrl(java.lang.String,java.lang.String):194 -> saveImageFromUrl
+    111:114:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):306:306 -> saveImageFromUrl
+    111:114:boolean saveImageFromUrl(java.lang.String,java.lang.String):194 -> saveImageFromUrl
+    115:118:byte[] com.actionanand.arflix.app.MainActivity.readAllBytes(java.io.InputStream):309:309 -> saveImageFromUrl
+    115:118:boolean saveImageFromUrl(java.lang.String,java.lang.String):194 -> saveImageFromUrl
+    119:122:boolean saveImageFromUrl(java.lang.String,java.lang.String):194:194 -> saveImageFromUrl
+    123:129:boolean saveImageFromUrl(java.lang.String,java.lang.String):195:195 -> saveImageFromUrl
+    130:138:boolean saveImageFromUrl(java.lang.String,java.lang.String):193:193 -> saveImageFromUrl
+    139:146:boolean saveImageFromUrl(java.lang.String,java.lang.String):197:197 -> saveImageFromUrl
 com.getcapacitor.Bridge -> com.getcapacitor.f:
 # {"id":"sourceFile","fileName":"Bridge.java"}
     com.getcapacitor.CapConfig config -> a
