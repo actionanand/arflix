@@ -12,6 +12,7 @@ import { ArDatePipe } from '../../pipes/ar-date.pipe';
 import { AuthService } from '../../services/auth.service';
 import { NavigationHistoryService } from '../../services/navigation-history.service';
 import { TmdbService } from '../../services/tmdb.service';
+import { WatchlistService } from '../../services/watchlist.service';
 
 const emptyDetails: DetailsPageData = {
   details: {
@@ -143,6 +144,19 @@ interface AndroidImageSaver {
           }
 
           <div class="actions">
+            <button
+              type="button"
+              class="button-link"
+              [class.button-link--secondary]="isInWatchlist()"
+              [attr.aria-pressed]="isInWatchlist()"
+              [disabled]="watchlistItem() === null"
+              (click)="toggleWatchlist()"
+            >
+              <span class="material-icons" aria-hidden="true">
+                {{ isInWatchlist() ? 'bookmark_added' : 'bookmark_add' }}
+              </span>
+              {{ isInWatchlist() ? 'Remove from watchlist' : 'Add to watchlist' }}
+            </button>
             @if (detailsResource.value().trailerUrl) {
               <a
                 class="button-link"
@@ -164,6 +178,9 @@ interface AndroidImageSaver {
             }
             <app-copy-link-menu [routePath]="shareRoutePath()" [routeId]="id()" />
           </div>
+          @if (watchlistMessage()) {
+            <p class="action-message" role="status">{{ watchlistMessage() }}</p>
+          }
         </div>
       </article>
 
@@ -359,6 +376,7 @@ export class DetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly navigationHistory = inject(NavigationHistoryService);
+  private readonly watchlist = inject(WatchlistService);
   private readonly imageDownloadProxyBaseUrl = environment.imageDownloadProxyBaseUrl;
   protected readonly tmdb = inject(TmdbService);
   protected readonly castIndex = signal(0);
@@ -366,6 +384,7 @@ export class DetailsComponent {
   protected readonly mediaTab = signal<'photos' | 'videos'>('photos');
   protected readonly selectedImage = signal<string | null>(null);
   protected readonly isDownloadingImage = signal(false);
+  protected readonly watchlistMessage = signal('');
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
   });
@@ -420,6 +439,18 @@ export class DetailsComponent {
     return rating > 0 ? `${rating.toFixed(1)} / 10` : 'Not rated';
   });
   protected readonly posterUrl = computed(() => this.tmdb.posterUrl(this.details().poster_path));
+  protected readonly watchlistItem = computed(() => {
+    const details = this.details();
+    if (details.id <= 0) return null;
+
+    return {
+      id: details.id,
+      mediaType: this.mediaType(),
+    };
+  });
+  protected readonly isInWatchlist = computed(() =>
+    this.watchlist.isSaved(this.mediaType(), this.id()),
+  );
   protected readonly certification = computed(() => this.detailsResource.value().certification);
   protected readonly kidsRating = computed(() => this.tmdb.kidsRatingLabel(this.certification()));
   protected readonly adultBadge = computed(() => {
@@ -512,6 +543,31 @@ export class DetailsComponent {
 
   protected profileUrl(path: string | null): string | null {
     return this.tmdb.profileUrl(path);
+  }
+
+  protected toggleWatchlist(): void {
+    const item = this.watchlistItem();
+    if (!item) return;
+    const title = this.title();
+
+    try {
+      const change = this.watchlist.toggle(item);
+      if (change === 'limit') {
+        this.watchlistMessage.set(
+          `Your watchlist can hold up to ${this.watchlist.maxItems} titles. Remove one before adding another.`,
+        );
+      } else {
+        this.watchlistMessage.set(
+          change === 'added'
+            ? `${title} was added to your watchlist.`
+            : `${title} was removed from your watchlist.`,
+        );
+      }
+    } catch (error) {
+      this.watchlistMessage.set(
+        error instanceof Error ? error.message : 'The watchlist could not be updated.',
+      );
+    }
   }
 
   protected imageUrl(path: string, size = 'w342'): string {

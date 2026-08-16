@@ -12,4 +12,5 @@ export const environment = {
   SHEET_GID: 357048143, // Sheet tab number (0 for first tab)
   passwordHash: 'PASSWORD_HASH_PLACEHOLDER', // To be replaced during build with actual hash
   arCollectionPageSize: 16,
+  watchlistMaxItems: 50,
 };

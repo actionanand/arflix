@@ -27,6 +27,7 @@ writeFileSync(
   mainActivityPath,
   `package ${packageName};
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Color;
@@ -54,10 +55,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends BridgeActivity {
   private static final int SHELL_BAR_COLOR = Color.parseColor("#07080c");
+  private static final int WATCHLIST_BACKUP_EXPORT_REQUEST = 6401;
   private static String pendingDeepLink = "";
+  private String pendingBackupJson = "";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,26 @@ public class MainActivity extends BridgeActivity {
     super.onNewIntent(intent);
     setIntent(intent);
     storeDeepLink(intent);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode != WATCHLIST_BACKUP_EXPORT_REQUEST) return;
+
+    String json = pendingBackupJson;
+    pendingBackupJson = "";
+    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) return;
+
+    Uri destination = data.getData();
+    try (OutputStream outputStream = getContentResolver().openOutputStream(destination)) {
+      if (outputStream == null) return;
+      outputStream.write(json.getBytes(StandardCharsets.UTF_8));
+      outputStream.flush();
+      showToast("Watchlist backup saved.");
+    } catch (Exception ex) {
+      showToast("Unable to save watchlist backup.");
+    }
   }
 
   private static synchronized void storeDeepLink(Intent intent) {
@@ -162,6 +186,21 @@ public class MainActivity extends BridgeActivity {
     @JavascriptInterface
     public String consumeDeepLink() {
       return consumePendingDeepLink();
+    }
+
+    @JavascriptInterface
+    public void exportBackupJson(String json, String fileName) {
+      runOnUiThread(() -> {
+        pendingBackupJson = json == null ? "" : json;
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        intent.putExtra(
+          Intent.EXTRA_TITLE,
+          fileName == null || fileName.isEmpty() ? "arflix-watchlist-backup.json" : fileName
+        );
+        startActivityForResult(intent, WATCHLIST_BACKUP_EXPORT_REQUEST);
+      });
     }
 
     @JavascriptInterface
