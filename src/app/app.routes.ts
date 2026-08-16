@@ -22,6 +22,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'watchlist',
+    title: 'My Watchlist - ARFlix',
+    loadComponent: () =>
+      import('./pages/watchlist/watchlist.component').then(
+        (component) => component.WatchlistComponent,
+      ),
+  },
+  {
     path: 'movies',
     title: 'Popular Movies - ARFlix',
     data: {

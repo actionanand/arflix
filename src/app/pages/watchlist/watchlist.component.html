@@ -1,0 +1,77 @@
+<section class="watchlist-page" aria-labelledby="watchlist-title">
+  <header class="page-head watchlist-head">
+    <div>
+      <p class="eyebrow">Saved for later</p>
+      <h1 id="watchlist-title">My Watchlist</h1>
+      <p>Movies and web series saved on this device.</p>
+    </div>
+    <p class="watchlist-count" aria-label="Watchlist capacity">
+      <strong>{{ visibleItems().length }}</strong>
+      <span>of {{ watchlist.maxItems }}</span>
+    </p>
+  </header>
+
+  <section class="watchlist-backup" aria-labelledby="watchlist-backup-title">
+    <div>
+      <h2 id="watchlist-backup-title">Move your list</h2>
+      <p>Export a JSON backup for another device. Importing replaces this device's watchlist.</p>
+    </div>
+    <div class="watchlist-backup__actions">
+      <input
+        #backupFileInput
+        class="watchlist-file-input"
+        type="file"
+        accept=".json,application/json"
+        aria-label="Import ARFlix watchlist backup JSON"
+        (change)="importBackup($event)"
+      />
+      <button
+        type="button"
+        class="button-link button-link--secondary"
+        (click)="backupFileInput.click()"
+      >
+        <span class="material-icons" aria-hidden="true">upload_file</span>
+        Import
+      </button>
+      <button
+        type="button"
+        class="button-link"
+        [disabled]="watchlist.count() === 0"
+        (click)="exportBackup()"
+      >
+        <span class="material-icons" aria-hidden="true">download</span>
+        Export
+      </button>
+    </div>
+  </section>
+
+  @if (message()) {
+    <p class="watchlist-message" role="status">{{ message() }}</p>
+  }
+
+  @if (visibleItems().length) {
+    <ul class="media-grid watchlist-grid" aria-label="Saved movies and web series">
+      @for (item of visibleItems(); track item.mediaType + ':' + item.id) {
+        <li class="watchlist-entry">
+          <app-media-card [item]="item" />
+          <button
+            type="button"
+            class="watchlist-remove"
+            [attr.aria-label]="'Remove ' + item.title + ' from watchlist'"
+            (click)="remove(item.mediaType, item.id, item.title)"
+          >
+            <span class="material-icons" aria-hidden="true">delete</span>
+            Remove
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <section class="empty-state watchlist-empty" aria-labelledby="watchlist-empty-title">
+      <span class="material-icons" aria-hidden="true">bookmarks</span>
+      <h2 id="watchlist-empty-title">Your watchlist is empty</h2>
+      <p>Open a movie or web series and select Add to watchlist.</p>
+      <a class="button-link button-link--fit" routerLink="/search">Browse titles</a>
+    </section>
+  }
+</section>

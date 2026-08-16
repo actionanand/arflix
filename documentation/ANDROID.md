@@ -15,6 +15,7 @@ This project uses PKCS12 format for Android release signing.
 | `scripts/generate-keystore.mjs`       | Generates a PKCS12 release keystore                            |
 | `scripts/detect-keystore-format.mjs`  | Checks whether a keystore is PKCS12                            |
 | `scripts/inject-env.js`               | Injects GitHub secrets into `src/environments/environment.ts`  |
+| `scripts/patch-android-shell.mjs`     | Adds native shell, deep-link, image, and watchlist backup APIs |
 
 ## Build Flow
 

@@ -1257,6 +1257,23 @@ h3 {
   margin-top: 1rem;
 }
 
+.actions .button-link {
+  gap: 0.45rem;
+}
+
+.actions .button-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.action-message {
+  margin-top: 0.75rem;
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .stat-row span,
 .chip-list li {
   display: inline-flex;
@@ -1841,7 +1858,7 @@ h3 {
   }
 }
 
-@media (min-width: 58rem) {
+@media (min-width: 68rem) {
   .app-header {
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
