@@ -9,7 +9,14 @@ import { TmdbService } from '../../services/tmdb.service';
   selector: 'app-media-card',
   imports: [NgOptimizedImage, RouterLink],
   template: `
-    <a class="media-card" [routerLink]="route()" [attr.aria-label]="ariaLabel()">
+    <a
+      class="media-card"
+      [routerLink]="route()"
+      [attr.aria-label]="ariaLabel()"
+      [attr.aria-disabled]="navigationDisabled() || null"
+      [attr.tabindex]="navigationDisabled() ? -1 : null"
+      (click)="handleClick($event)"
+    >
       <div class="media-card__poster">
         @if (posterUrl()) {
           <img [src]="posterUrl()" [alt]="posterAlt()" loading="lazy" width="342" height="513" />
@@ -34,6 +41,7 @@ import { TmdbService } from '../../services/tmdb.service';
 })
 export class MediaCardComponent {
   readonly item = input.required<MediaItem>();
+  readonly navigationDisabled = input(false);
 
   private readonly tmdb = inject(TmdbService);
 
@@ -53,4 +61,10 @@ export class MediaCardComponent {
   protected readonly ariaLabel = computed(
     () => `Open ${this.item().title} ${this.mediaLabel()} details`,
   );
+
+  protected handleClick(event: MouseEvent): void {
+    if (!this.navigationDisabled()) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }
 }

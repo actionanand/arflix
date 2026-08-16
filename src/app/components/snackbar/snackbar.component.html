@@ -1,0 +1,17 @@
+@if (snackbar.message(); as item) {
+  <aside
+    class="snackbar"
+    [class.snackbar--error]="item.tone === 'error'"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <span class="snackbar__icon material-icons" aria-hidden="true">
+      {{ item.tone === 'error' ? 'error' : 'check_circle' }}
+    </span>
+    <p>{{ item.message }}</p>
+    <button type="button" aria-label="Dismiss notification" (click)="snackbar.dismiss()">
+      <span class="material-icons" aria-hidden="true">close</span>
+    </button>
+  </aside>
+}

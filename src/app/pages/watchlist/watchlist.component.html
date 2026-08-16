@@ -45,10 +45,6 @@
     </div>
   </section>
 
-  @if (message()) {
-    <p class="watchlist-message" role="status">{{ message() }}</p>
-  }
-
   @if (watchlist.count() === 0) {
     <section class="empty-state watchlist-empty" aria-labelledby="watchlist-empty-title">
       <span class="material-icons" aria-hidden="true">bookmarks</span>
@@ -57,6 +53,34 @@
       <a class="button-link button-link--fit" routerLink="/search">Browse titles</a>
     </section>
   } @else {
+    @if (selectionMode()) {
+      <section class="selection-toolbar" aria-label="Watchlist selection tools">
+        <p aria-live="polite">
+          <strong>{{ selectionCount() }}</strong>
+          {{ selectionCount() === 1 ? 'title selected' : 'titles selected' }}
+        </p>
+        <div class="selection-toolbar__actions">
+          <button type="button" (click)="clearSelection()">
+            <span class="material-icons" aria-hidden="true">close</span>
+            Clear
+          </button>
+          <button type="button" [disabled]="allVisibleSelected()" (click)="selectAllVisible()">
+            <span class="material-icons" aria-hidden="true">select_all</span>
+            Select all
+          </button>
+          <button type="button" class="selection-toolbar__delete" (click)="deleteSelected()">
+            <span class="material-icons" aria-hidden="true">delete</span>
+            Delete
+          </button>
+        </div>
+      </section>
+    } @else {
+      <p class="selection-help">
+        <span class="material-icons" aria-hidden="true">touch_app</span>
+        Press and hold a title to select multiple items.
+      </p>
+    }
+
     @if (titlesResource.isLoading()) {
       <div class="loading-grid watchlist-loading" aria-label="Loading saved titles">
         @for (entry of watchlist.items(); track entry.mediaType + ':' + entry.id) {
@@ -70,17 +94,57 @@
     @if (visibleItems().length) {
       <ul class="media-grid watchlist-grid" aria-label="Saved movies and web series">
         @for (item of visibleItems(); track item.mediaType + ':' + item.id) {
-          <li class="watchlist-entry">
-            <app-media-card [item]="item" />
-            <button
-              type="button"
-              class="watchlist-remove"
-              [attr.aria-label]="'Remove ' + item.title + ' from watchlist'"
-              (click)="remove(item.mediaType, item.id, item.title)"
-            >
-              <span class="material-icons" aria-hidden="true">delete</span>
-              Remove
-            </button>
+          <li
+            class="watchlist-entry"
+            [class.is-selected]="isSelected(item.mediaType, item.id)"
+            [class.is-selection-mode]="selectionMode()"
+            (pointerdown)="startLongPress($event, item)"
+            (pointermove)="trackLongPress($event)"
+            (pointerup)="cancelLongPress()"
+            (pointercancel)="cancelLongPress()"
+            (pointerleave)="cancelLongPress()"
+          >
+            <div class="watchlist-entry__card">
+              <app-media-card [item]="item" [navigationDisabled]="selectionMode()" />
+              @if (selectionMode()) {
+                <button
+                  type="button"
+                  class="watchlist-entry__tap-target"
+                  [attr.aria-label]="
+                    (isSelected(item.mediaType, item.id) ? 'Deselect ' : 'Select ') + item.title
+                  "
+                  (click)="toggleSelection(item)"
+                ></button>
+              }
+              <button
+                type="button"
+                class="watchlist-selector"
+                [class.is-visible]="selectionMode() || isSelected(item.mediaType, item.id)"
+                [attr.aria-label]="
+                  (isSelected(item.mediaType, item.id) ? 'Deselect ' : 'Select ') + item.title
+                "
+                [attr.aria-pressed]="isSelected(item.mediaType, item.id)"
+                (pointerdown)="$event.stopPropagation()"
+                (click)="$event.stopPropagation(); toggleSelection(item)"
+              >
+                <span class="material-icons" aria-hidden="true">
+                  {{
+                    isSelected(item.mediaType, item.id) ? 'check_circle' : 'radio_button_unchecked'
+                  }}
+                </span>
+              </button>
+            </div>
+            @if (!selectionMode()) {
+              <button
+                type="button"
+                class="watchlist-remove"
+                [attr.aria-label]="'Remove ' + item.title + ' from watchlist'"
+                (click)="requestRemove(item.mediaType, item.id, item.title)"
+              >
+                <span class="material-icons" aria-hidden="true">delete</span>
+                Remove
+              </button>
+            }
           </li>
         }
       </ul>
@@ -99,16 +163,56 @@
         <p>These titles could not be fetched. Their IDs remain available for removal.</p>
         <ul>
           @for (entry of unavailableEntries(); track entry.mediaType + ':' + entry.id) {
-            <li>
-              <span>{{ entryLabel(entry) }}</span>
+            <li
+              [class.is-selected]="isSelected(entry.mediaType, entry.id)"
+              [class.is-selection-mode]="selectionMode()"
+              (pointerdown)="startLongPress($event, entry)"
+              (pointermove)="trackLongPress($event)"
+              (pointerup)="cancelLongPress()"
+              (pointercancel)="cancelLongPress()"
+            >
+              @if (selectionMode()) {
+                <button
+                  type="button"
+                  class="watchlist-unavailable__tap-target"
+                  [attr.aria-label]="
+                    (isSelected(entry.mediaType, entry.id) ? 'Deselect ' : 'Select ') +
+                    entryLabel(entry)
+                  "
+                  (click)="toggleSelection(entry)"
+                ></button>
+              }
               <button
                 type="button"
-                [attr.aria-label]="'Remove ' + entryLabel(entry) + ' from watchlist'"
-                (click)="remove(entry.mediaType, entry.id, entryLabel(entry))"
+                class="watchlist-unavailable__selector"
+                [class.is-visible]="selectionMode() || isSelected(entry.mediaType, entry.id)"
+                [attr.aria-label]="
+                  (isSelected(entry.mediaType, entry.id) ? 'Deselect ' : 'Select ') +
+                  entryLabel(entry)
+                "
+                [attr.aria-pressed]="isSelected(entry.mediaType, entry.id)"
+                (pointerdown)="$event.stopPropagation()"
+                (click)="$event.stopPropagation(); toggleSelection(entry)"
               >
-                <span class="material-icons" aria-hidden="true">delete</span>
-                Remove
+                <span class="material-icons" aria-hidden="true">
+                  {{
+                    isSelected(entry.mediaType, entry.id)
+                      ? 'check_circle'
+                      : 'radio_button_unchecked'
+                  }}
+                </span>
               </button>
+              <span>{{ entryLabel(entry) }}</span>
+              @if (!selectionMode()) {
+                <button
+                  type="button"
+                  [attr.aria-label]="'Remove ' + entryLabel(entry) + ' from watchlist'"
+                  (click)="requestRemove(entry.mediaType, entry.id, entryLabel(entry))"
+                >
+                  <span class="material-icons" aria-hidden="true">delete</span>
+                  Remove
+                </button>
+              }
             </li>
           }
         </ul>

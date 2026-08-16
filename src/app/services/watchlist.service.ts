@@ -49,11 +49,19 @@ export class WatchlistService {
   }
 
   remove(mediaType: MediaType, id: number): void {
-    const next = this.itemsState().filter((item) => item.mediaType !== mediaType || item.id !== id);
+    this.removeMany([{ id, mediaType }]);
+  }
 
-    if (next.length !== this.itemsState().length) {
-      this.persist(next);
-    }
+  removeMany(items: readonly Pick<WatchlistItem, 'id' | 'mediaType'>[]): number {
+    const keys = new Set(items.map((item) => `${item.mediaType}:${item.id}`));
+    if (!keys.size) return 0;
+
+    const current = this.itemsState();
+    const next = current.filter((item) => !keys.has(`${item.mediaType}:${item.id}`));
+    const removedCount = current.length - next.length;
+
+    if (removedCount) this.persist(next);
+    return removedCount;
   }
 
   createBackup(): WatchlistBackup {
