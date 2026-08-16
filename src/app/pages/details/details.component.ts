@@ -7,7 +7,7 @@ import { CopyLinkMenuComponent } from '../../components/copy-link-menu/copy-link
 import { environment } from '../../../environments/environment';
 import { MediaCardComponent } from '../../components/media-card/media-card.component';
 import { NetworkHelpComponent } from '../../components/network-help/network-help.component';
-import { DetailsPageData, MediaItem, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
+import { DetailsPageData, MediaType, TmdbDetails, TmdbVideo } from '../../models/tmdb';
 import { ArDatePipe } from '../../pipes/ar-date.pipe';
 import { AuthService } from '../../services/auth.service';
 import { NavigationHistoryService } from '../../services/navigation-history.service';
@@ -439,21 +439,13 @@ export class DetailsComponent {
     return rating > 0 ? `${rating.toFixed(1)} / 10` : 'Not rated';
   });
   protected readonly posterUrl = computed(() => this.tmdb.posterUrl(this.details().poster_path));
-  protected readonly watchlistItem = computed<MediaItem | null>(() => {
+  protected readonly watchlistItem = computed(() => {
     const details = this.details();
     if (details.id <= 0) return null;
 
     return {
-      adult: details.adult === true,
-      backdropPath: details.backdrop_path ?? null,
       id: details.id,
       mediaType: this.mediaType(),
-      overview: details.overview ?? '',
-      posterPath: details.poster_path ?? null,
-      rating: details.vote_average ?? 0,
-      releaseDate: this.tmdb.mediaDate(details),
-      title: this.tmdb.mediaTitle(details),
-      voteCount: details.vote_count ?? 0,
     };
   });
   protected readonly isInWatchlist = computed(() =>
@@ -556,6 +548,7 @@ export class DetailsComponent {
   protected toggleWatchlist(): void {
     const item = this.watchlistItem();
     if (!item) return;
+    const title = this.title();
 
     try {
       const change = this.watchlist.toggle(item);
@@ -566,8 +559,8 @@ export class DetailsComponent {
       } else {
         this.watchlistMessage.set(
           change === 'added'
-            ? `${item.title} was added to your watchlist.`
-            : `${item.title} was removed from your watchlist.`,
+            ? `${title} was added to your watchlist.`
+            : `${title} was removed from your watchlist.`,
         );
       }
     } catch (error) {

@@ -1,7 +1,9 @@
-import { MediaItem } from './tmdb';
+import { MediaType } from './tmdb';
 
-export interface WatchlistItem extends MediaItem {
+export interface WatchlistItem {
   addedAt: string;
+  id: number;
+  mediaType: MediaType;
 }
 
 export interface WatchlistBackup {

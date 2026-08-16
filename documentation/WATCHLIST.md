@@ -14,9 +14,14 @@ series share one limit, configured with `watchlistMaxItems` in both environment 
 ## Backup format
 
 The JSON backup is versioned and identifies itself with `app: "ARFlix"` and
-`format: "watchlist"`. Each entry contains the TMDb ID, media type, display metadata, adult flag,
-and the time it was saved. Duplicate movie/type pairs are removed during import. Unsupported,
-malformed, oversized, or over-limit backups are rejected without changing the current list.
+`format: "watchlist"`. Each entry contains only the TMDb ID, media type, and the time it was saved.
+Poster paths, backdrop paths, and other title metadata are not stored or exported. The watchlist
+route fetches current display information from TMDb by ID. Duplicate movie/type pairs are removed
+during import. Unsupported, malformed, oversized, or over-limit backups are rejected without
+changing the current list.
+
+When ARFlix starts, older watchlist records are migrated in place to the identifier-only shape, so
+previously stored poster and backdrop paths are removed from local storage.
 
 ## Android export
 

@@ -6,7 +6,7 @@
       <p>Movies and web series saved on this device.</p>
     </div>
     <p class="watchlist-count" aria-label="Watchlist capacity">
-      <strong>{{ visibleItems().length }}</strong>
+      <strong>{{ watchlist.count() }}</strong>
       <span>of {{ watchlist.maxItems }}</span>
     </p>
   </header>
@@ -49,29 +49,70 @@
     <p class="watchlist-message" role="status">{{ message() }}</p>
   }
 
-  @if (visibleItems().length) {
-    <ul class="media-grid watchlist-grid" aria-label="Saved movies and web series">
-      @for (item of visibleItems(); track item.mediaType + ':' + item.id) {
-        <li class="watchlist-entry">
-          <app-media-card [item]="item" />
-          <button
-            type="button"
-            class="watchlist-remove"
-            [attr.aria-label]="'Remove ' + item.title + ' from watchlist'"
-            (click)="remove(item.mediaType, item.id, item.title)"
-          >
-            <span class="material-icons" aria-hidden="true">delete</span>
-            Remove
-          </button>
-        </li>
-      }
-    </ul>
-  } @else {
+  @if (watchlist.count() === 0) {
     <section class="empty-state watchlist-empty" aria-labelledby="watchlist-empty-title">
       <span class="material-icons" aria-hidden="true">bookmarks</span>
       <h2 id="watchlist-empty-title">Your watchlist is empty</h2>
       <p>Open a movie or web series and select Add to watchlist.</p>
       <a class="button-link button-link--fit" routerLink="/search">Browse titles</a>
     </section>
+  } @else {
+    @if (titlesResource.isLoading()) {
+      <div class="loading-grid watchlist-loading" aria-label="Loading saved titles">
+        @for (entry of watchlist.items(); track entry.mediaType + ':' + entry.id) {
+          <div class="skeleton-card" aria-hidden="true"></div>
+        }
+      </div>
+    } @else if (titlesResource.error()) {
+      <app-network-help (retry)="titlesResource.reload()" />
+    }
+
+    @if (visibleItems().length) {
+      <ul class="media-grid watchlist-grid" aria-label="Saved movies and web series">
+        @for (item of visibleItems(); track item.mediaType + ':' + item.id) {
+          <li class="watchlist-entry">
+            <app-media-card [item]="item" />
+            <button
+              type="button"
+              class="watchlist-remove"
+              [attr.aria-label]="'Remove ' + item.title + ' from watchlist'"
+              (click)="remove(item.mediaType, item.id, item.title)"
+            >
+              <span class="material-icons" aria-hidden="true">delete</span>
+              Remove
+            </button>
+          </li>
+        }
+      </ul>
+    } @else if (
+      !titlesResource.isLoading() && !titlesResource.error() && !unavailableEntries().length
+    ) {
+      <section class="notice watchlist-visibility" aria-live="polite">
+        <h2>No saved titles are visible</h2>
+        <p>Your current Family setting is hiding the saved adult titles.</p>
+      </section>
+    }
+
+    @if (unavailableEntries().length) {
+      <section class="watchlist-unavailable" aria-labelledby="unavailable-title">
+        <h2 id="unavailable-title">Saved references</h2>
+        <p>These titles could not be fetched. Their IDs remain available for removal.</p>
+        <ul>
+          @for (entry of unavailableEntries(); track entry.mediaType + ':' + entry.id) {
+            <li>
+              <span>{{ entryLabel(entry) }}</span>
+              <button
+                type="button"
+                [attr.aria-label]="'Remove ' + entryLabel(entry) + ' from watchlist'"
+                (click)="remove(entry.mediaType, entry.id, entryLabel(entry))"
+              >
+                <span class="material-icons" aria-hidden="true">delete</span>
+                Remove
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
   }
 </section>

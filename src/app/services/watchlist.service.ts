@@ -26,7 +26,7 @@ export class WatchlistService {
     return this.itemsState().some((item) => item.mediaType === mediaType && item.id === id);
   }
 
-  toggle(item: MediaItem): WatchlistChange {
+  toggle(item: Pick<MediaItem, 'id' | 'mediaType'>): WatchlistChange {
     if (this.isSaved(item.mediaType, item.id)) {
       this.remove(item.mediaType, item.id);
       return 'removed';
@@ -37,7 +37,11 @@ export class WatchlistService {
     }
 
     const next: WatchlistItem[] = [
-      { ...item, addedAt: new Date().toISOString() },
+      {
+        addedAt: new Date().toISOString(),
+        id: item.id,
+        mediaType: item.mediaType,
+      },
       ...this.itemsState(),
     ];
     this.persist(next);
@@ -96,7 +100,13 @@ export class WatchlistService {
       if (!this.isRecord(value) || value['version'] !== STORAGE_VERSION) return [];
       if (!Array.isArray(value['items'])) return [];
 
-      return this.normalizeItems(value['items']).slice(0, this.maxItems);
+      const items = this.normalizeItems(value['items']).slice(0, this.maxItems);
+      try {
+        this.writeStorage(storage, items);
+      } catch {
+        // Keep the readable in-memory list if browser storage is temporarily unavailable.
+      }
+      return items;
     } catch {
       return [];
     }
@@ -108,13 +118,8 @@ export class WatchlistService {
       throw new Error('Watchlist storage is unavailable on this device.');
     }
 
-    const stored: StoredWatchlist = {
-      items,
-      version: STORAGE_VERSION,
-    };
-
     try {
-      storage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      this.writeStorage(storage, items);
       this.itemsState.set(items);
     } catch {
       throw new Error('ARFlix could not save the watchlist on this device.');
@@ -145,26 +150,14 @@ export class WatchlistService {
 
     const id = value['id'];
     const mediaType = value['mediaType'];
-    const title = this.stringValue(value['title']);
-    const rating = this.numberValue(value['rating']);
-    const voteCount = this.numberValue(value['voteCount']);
 
     if (!Number.isInteger(id) || (id as number) <= 0) return null;
     if (mediaType !== 'movie' && mediaType !== 'tv') return null;
-    if (!title || rating === null || voteCount === null) return null;
 
     return {
       addedAt: this.dateValue(value['addedAt']),
-      adult: value['adult'] === true,
-      backdropPath: this.nullableStringValue(value['backdropPath']),
       id: id as number,
       mediaType,
-      overview: this.stringValue(value['overview']),
-      posterPath: this.nullableStringValue(value['posterPath']),
-      rating,
-      releaseDate: this.stringValue(value['releaseDate']),
-      title,
-      voteCount: Math.max(0, Math.floor(voteCount)),
     };
   }
 
@@ -175,16 +168,13 @@ export class WatchlistService {
     return value;
   }
 
-  private nullableStringValue(value: unknown): string | null {
-    return value === null || value === undefined ? null : this.stringValue(value);
-  }
+  private writeStorage(storage: Storage, items: readonly WatchlistItem[]): void {
+    const stored: StoredWatchlist = {
+      items,
+      version: STORAGE_VERSION,
+    };
 
-  private numberValue(value: unknown): number | null {
-    return typeof value === 'number' && Number.isFinite(value) ? value : null;
-  }
-
-  private stringValue(value: unknown): string {
-    return typeof value === 'string' ? value.trim().slice(0, 5000) : '';
+    storage.setItem(STORAGE_KEY, JSON.stringify(stored));
   }
 
   private isRecord(value: unknown): value is Record<string, unknown> {

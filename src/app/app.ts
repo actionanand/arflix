@@ -6,6 +6,7 @@ import { BackToTopComponent } from './components/back-to-top/back-to-top.compone
 import { InstallBannerComponent } from './components/install-banner/install-banner.component';
 import { AuthService } from './services/auth.service';
 import { NavigationHistoryService } from './services/navigation-history.service';
+import { WatchlistService } from './services/watchlist.service';
 import { environment } from '../environments/environment';
 
 interface CapacitorBridge {
@@ -41,10 +42,12 @@ export class App {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly watchlist = inject(WatchlistService);
   protected readonly menuOpen = signal(false);
   protected readonly showLegacyLink = signal(!this.isAndroidApp());
 
   constructor() {
+    this.watchlist.items();
     afterNextRender(() => {
       this.consumePendingDeepLink();
 
